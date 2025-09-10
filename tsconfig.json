@@ -19,6 +19,7 @@
             }
         ],
         "paths": {
+            "crypto-icons/*": ["./src/components/crypto-icons/*"],
             "shadcn/*": ["./src/components/ui/*"],
             "src/*": ["./src/*"],
             "public/*": ["./public/*"]
