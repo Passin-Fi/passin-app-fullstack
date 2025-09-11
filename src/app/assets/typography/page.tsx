@@ -1,5 +1,5 @@
 import { CryptoIcon } from 'crypto-icons/CryptoIcon';
-import { BadgeCheckIcon } from 'lucide-react';
+import { BadgeCheckIcon, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from 'shadcn/badge';
 import { Button } from 'shadcn/button';
@@ -13,7 +13,7 @@ export const metadata = {
 export default function TypographyAssetPage() {
     return (
         <main className="container mx-auto max-w-4xl px-4 py-8">
-            <div className="glass-card ">
+            <Card className="">
                 <Link href="/" className="text-blue-500 underline mb-4 inline-block">
                     {'< Go Back Home'}
                 </Link>
@@ -31,16 +31,14 @@ export default function TypographyAssetPage() {
                 <p className="overline">.overline: THIS IS OVERLINE TEXT</p>
                 <blockquote className="blockquote">.blockquote: This is a blockquote.</blockquote>
                 <pre className="code">.code: const example = "This is code";</pre>
-            </div>
+            </Card>
 
             <div className="glass-card mt-8">
                 <Button variant="default">Default Button</Button>
                 <Button variant="outline" className="ml-2">
                     Outline Button
                 </Button>
-                <Button variant="secondary" className="ml-2">
-                    Secondary Button
-                </Button>
+
                 <Button variant="destructive" className="ml-2">
                     Destructive Button
                 </Button>
@@ -57,9 +55,12 @@ export default function TypographyAssetPage() {
                     Large Button
                 </Button>
                 <Button variant="default" size="icon" className="ml-2">
-                    <CryptoIcon name="SOL" />
+                    <Wallet />
                 </Button>
             </div>
+            <Button variant="secondary" className="ml-2">
+                Secondary Button
+            </Button>
 
             <div className="glass-card mt-8">
                 <Badge>Default Badge</Badge>
@@ -82,21 +83,24 @@ export default function TypographyAssetPage() {
                 <Input
                     placeholder="Type something..."
                     endAdornment={
-                        <span className="flex items-center gap-1">
-                            USDT <CryptoIcon name="USDT" />
-                        </span>
+                        <>
+                            <span>USDT</span>
+                            <CryptoIcon name="USDT" size={14} />
+                        </>
                     }
+                    endAdornmentClassName="flex items-center gap-1"
                 />
             </div>
 
             <div className="glass-card mt-6">
                 <Input
                     placeholder="Type something..."
-                    endAdornment={
-                        <span className="flex items-center gap-1">
-                            USDT <CryptoIcon name="USDT" />
-                        </span>
+                    startAdornment={
+                        <>
+                            <span>USDT</span> <CryptoIcon name="USDT" size={14} />
+                        </>
                     }
+                    startAdornmentClassName="flex items-center gap-1"
                 />
             </div>
         </main>

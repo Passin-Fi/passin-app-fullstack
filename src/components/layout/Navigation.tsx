@@ -12,7 +12,7 @@ const menu = [
 export default function Navigation() {
     return (
         <div
-            className={`not-mobile:max-w-[400px] mobile:fixed w-[100vw] mobile:bottom-0 mobile:left-0 bg-[#2A3040] flex justify-around desktop:gap-6 items-center rounded-[8px] overflow-hidden`}
+            className={`not-mobile:max-w-[400px] mobile:fixed w-[100%] mobile:bottom-0 mobile:left-0 bg-[#2A3040] flex justify-around desktop:gap-6 items-center rounded-[99px] overflow-hidden`}
             style={{ height: layoutConstants.navigationHeight, zIndex: layoutConstants.headerZindex }}
         >
             {menu.map((item) => (

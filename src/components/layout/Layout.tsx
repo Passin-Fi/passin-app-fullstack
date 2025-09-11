@@ -6,7 +6,7 @@ import Content from './Content';
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <BackgroundApp />
+            {/* <BackgroundApp /> */}
             <Header />
             <Content>{children}</Content>
         </>

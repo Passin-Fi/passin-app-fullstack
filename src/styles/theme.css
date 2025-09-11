@@ -40,4 +40,8 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
+    --radius-button: var(--radius-btn);
+    --radius-card: 4px;
+    --radius-input: 4px;
+    --radius-badge: 99px;
 }
