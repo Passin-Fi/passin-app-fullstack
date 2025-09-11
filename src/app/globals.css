@@ -1,12 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 /* Split CSS configuration */
-@import "../styles/variants.css";
-@import "../styles/theme.css";
-@import "../styles/variables.light.css";
-@import "../styles/variables.dark.css";
-@import "../styles/layers.base.css";
-@import "../styles/typography.css";
-@import "../styles/layers.components.css";
-@import "../styles/layers.utilities.css";
+@import '../styles/variants.css';
+@import '../styles/theme.css';
+@import '../styles/variables.light.css';
+@import '../styles/variables.dark.css';
+@import '../styles/layers.base.css';
+@import '../styles/typography.css';
+@import '../styles/layers.components.css';
+@import '../styles/layers.utilities.css';

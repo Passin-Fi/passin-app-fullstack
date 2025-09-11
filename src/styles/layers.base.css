@@ -5,6 +5,7 @@
         @apply border-border outline-ring/50;
     }
     body {
+        min-height: 100svh;
         @apply bg-background text-foreground antialiased;
     }
     button {

@@ -1,18 +1,18 @@
 /* Dark mode CSS variables (activate by adding `.dark` on <html> or <body>) */
 
 .dark {
-    --background: oklch(0% 0 0);
-    --foreground: oklch(0.985 0 0);
+    --background: #050d18;
+    --foreground: oklch(100% 0.00011 271.152);
     --card: oklch(0.21 0.006 285.885);
-    --card-foreground: oklch(0.985 0 0);
+    --card-foreground: oklch(100% 0.00011 271.152);
     --popover: oklch(0.21 0.006 285.885);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.92 0.004 286.32);
+    --primary: oklch(92.957% 0.19118 126.384);
     --primary-foreground: oklch(0.21 0.006 285.885);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(93.518% 0.0357 297.942 / 0.3);
+    --secondary-foreground: oklch(100% 0.00011 271.152);
     --muted: oklch(0.274 0.006 286.033);
-    --muted-foreground: oklch(0.705 0.015 286.067);
+    --muted-foreground: oklch(77.628% 0.00009 271.152);
     --accent: oklch(0.274 0.006 286.033);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);

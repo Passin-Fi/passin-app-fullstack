@@ -2,22 +2,22 @@
 
 @layer base {
     h1 {
-        @apply font-bold leading-tight tracking-tight mobile:text-3xl tablet:text-4xl desktop:text-5xl;
+        @apply font-bold leading-tight tracking-tight mobile:text-2xl tablet:text-3xl desktop:text-5xl;
     }
     h2 {
-        @apply font-semibold leading-tight tracking-tight mobile:text-2xl tablet:text-3xl desktop:text-4xl;
+        @apply font-semibold leading-tight tracking-tight mobile:text-xl tablet:text-2xl desktop:text-4xl;
     }
     h3 {
-        @apply font-semibold leading-snug tracking-tight mobile:text-xl tablet:text-2xl desktop:text-3xl;
+        @apply font-semibold leading-snug tracking-tight mobile:text-lg tablet:text-xl desktop:text-3xl;
     }
     h4 {
-        @apply font-medium leading-snug tracking-tight mobile:text-lg tablet:text-xl desktop:text-2xl;
+        @apply font-medium leading-snug tracking-tight mobile:text-base tablet:text-lg desktop:text-2xl;
     }
     h5 {
-        @apply font-medium leading-normal tracking-tight mobile:text-base tablet:text-lg desktop:text-xl;
+        @apply font-medium leading-normal tracking-tight mobile:text-sm tablet:text-base desktop:text-xl;
     }
     h6 {
-        @apply font-medium uppercase tracking-wide mobile:text-sm tablet:text-base desktop:text-lg;
+        @apply font-medium uppercase tracking-wide mobile:text-xs tablet:text-sm desktop:text-lg;
     }
     p {
         @apply text-base leading-7;
@@ -27,10 +27,10 @@
 @layer components {
     /* Special text helpers */
     .lead {
-        @apply text-lg tablet:text-xl text-muted-foreground;
+        @apply mobile:text-xs tablet:text-sm desktop:text-base;
     }
     .muted {
-        @apply text-muted-foreground;
+        @apply text-muted-foreground mobile:text-xs tablet:text-sm desktop:text-base;
     }
     .caption {
         @apply text-xs text-muted-foreground;
