@@ -77,14 +77,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${mulish.className} ${geistMono.variable} antialiased`}>
+            <body className={`${mulish.className} ${geistMono.variable} antialiased container`}>
                 <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
                     <JotaiProvider>
                         <Layout>{children}</Layout>
                     </JotaiProvider>
                     {process.env.NODE_ENV === 'development' && (
                         <div style={{ position: 'fixed', bottom: 16, right: 16, cursor: 'pointer', zIndex: 1000 }}>
-                            <Link href="/assets/typography" title="Typography Test Page">
+                            <Link href="/ui-components" title="Typography Test Page">
                                 <BugIcon />
                             </Link>
                         </div>

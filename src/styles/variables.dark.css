@@ -32,6 +32,10 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.552 0.016 285.938);
+
+    --radius-btn: 99px;
+
+    --bg-input: #ece5ff4d;
 } */
 /* gradient-theme */
 /* .dark {
@@ -93,7 +97,7 @@
     --secondary: oklch(28.035% 0.01587 264.299);
     --secondary-foreground: oklch(87.573% 0.03335 122.204);
     --muted: oklch(0.34 0.01 252.98);
-    --muted-foreground: oklch(0.66 0.02 269.92);
+    --muted-foreground: #8f939e;
     --accent: oklch(0.16 0.03 254.16);
     --accent-foreground: oklch(0.99 0 0);
     --destructive: oklch(0.7 0.19 22.23);

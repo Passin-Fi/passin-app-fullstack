@@ -28,4 +28,9 @@
         mix-blend-mode: overlay;
         pointer-events: none;
     }
+
+    .contained-card {
+        position: relative;
+        @apply rounded-lg p-2.5 tablet:p-4 desktop:p-5 backdrop-blur-xl bg-white/5 dark:bg-white/3;
+    }
 }
