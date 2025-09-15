@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 RUN npm install --frozen-lockfile
 
-RUN npm build
+RUN npm run build
 
 FROM node:22-alpine
 
