@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from 'shadcn/button';
 
 export default function ButtonConnectWallet() {
-    const { createPasskeyOnly, isConnecting, isLoading, smartWalletPubkey, wallet, buildSmartWalletTransaction, createSmartWalletOnly, connect } = useWallet();
+    const { createPasskeyOnly, isConnecting, isLoading, smartWalletPubkey, wallet, buildSmartWalletTransaction, createSmartWalletOnly, connect, disconnect } = useWallet();
     const [data, setData] = React.useState<PasskeyData | null>(null);
     const [dataCreateSmartWallet, setDataCreateSmartWallet] = React.useState<SmartWalletCreationResult | null>(null);
     async function getPasskeysSelect() {
@@ -46,6 +46,9 @@ export default function ButtonConnectWallet() {
             <Button onClick={testFunctionConnect}>Test connect function</Button>
             <br />
             {smartWalletPubkey && <div>Smart Wallet: {smartWalletPubkey.toBase58()}</div>}
+            <Button variant={'destructive'} onClick={disconnect}>
+                Disconnect
+            </Button>
         </>
     );
 }
