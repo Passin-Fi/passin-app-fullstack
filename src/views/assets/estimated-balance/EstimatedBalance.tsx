@@ -40,7 +40,7 @@ export default function EstimatedBalance() {
                 </div>
                 <p className="text-sm">~ ${formatNumber(100)}</p>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-3 max-w-md">
                 <Button variant={'outline'} className="flex-1">
                     Withdraw
                 </Button>
