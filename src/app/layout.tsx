@@ -3,8 +3,9 @@ import { Geist_Mono, Mulish } from 'next/font/google';
 import './globals.css';
 import { BugIcon } from 'lucide-react';
 import Link from 'next/link';
-import { ThemeProvider } from 'src/components/theme-provider/ThemeProvider';
-import JotaiProvider from 'src/components/jotai-provider/JotaiProvider';
+import { ThemeProvider } from 'src/components/provider/ThemeProvider';
+import JotaiProvider from 'src/components/provider/JotaiProvider';
+import LazorkitProvider from 'src/components/provider/LazorkitProvider';
 import { ToastContainer } from 'react-toastify';
 import { KEYWORDS, SITE_DESCRIPTION, SITE_TITLE, SITE_URL, THUMBNAIL } from 'src/constant/metadata';
 import Layout from 'src/components/layout/Layout';
@@ -80,7 +81,9 @@ export default function RootLayout({
             <body className={`${mulish.className} ${geistMono.variable} antialiased container`}>
                 <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
                     <JotaiProvider>
-                        <Layout>{children}</Layout>
+                        <LazorkitProvider>
+                            <Layout>{children}</Layout>
+                        </LazorkitProvider>
                     </JotaiProvider>
                     {process.env.NODE_ENV === 'development' && (
                         <div style={{ position: 'fixed', bottom: 16, right: 16, cursor: 'pointer', zIndex: 1000 }}>

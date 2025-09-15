@@ -7,10 +7,12 @@ import { ChevronRight } from 'lucide-react';
 import { Badge } from 'shadcn/badge';
 import Link from 'next/link';
 import { formatNumber } from 'src/utils/format';
+import ButtonConnectWallet from 'src/components/button/ButtonConnectWallet';
 
 export default function Pools() {
     return (
         <div className="mt-4">
+            <ButtonConnectWallet />
             <CardCustom>
                 <div className="flex justify-between">
                     <div className="flex gap-2 place-items-center">

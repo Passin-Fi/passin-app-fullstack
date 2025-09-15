@@ -3,8 +3,8 @@ import { CryptoIcon } from 'crypto-icons/CryptoIcon';
 import { TokenSymbol, WalletName } from 'crypto-icons/types';
 import { toast } from 'react-toastify';
 import { Button } from 'shadcn/button';
-import LoadingAnimation1 from 'src/components/loading-icon/LoadingAnimation1';
-import ButtonToggleMode from 'src/components/toggle-mode/ButtonToggleMode';
+import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
+import ButtonToggleMode from 'src/components/button/ButtonToggleMode';
 
 export default function Home() {
     return (
