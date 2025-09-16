@@ -1,6 +1,20 @@
 import { FormatNumberOptions } from 'src/global.config';
 import { isNumeric } from './index';
 
+/**
+ *
+ * @param address The input address
+ * @param first The number of characters will be taken from begin of the address. This value cannot be negative
+ * @param last The number of characters will be taken from last of the address. This value cannot be negative
+ * @returns
+ */
+export function formatAddress(address: string, first = 6, last = 4): string {
+    if (first < 0 || last <= 0) {
+        throw new Error('Invalid parameter(s)');
+    }
+    return address.slice(0, first) + '...' + address.slice(-last);
+}
+
 export function numberWithCommas(x: number | string, delimiter = ','): string {
     if (!isNumeric(x)) {
         throw new Error('Must provide a correct number');

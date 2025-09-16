@@ -80,7 +80,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${mulish.className} ${geistMono.variable} antialiased container`}>
+            <body className={`${mulish.className} ${geistMono.variable} antialiased`}>
                 <ProgressProvider>
                     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
                         <JotaiProvider>

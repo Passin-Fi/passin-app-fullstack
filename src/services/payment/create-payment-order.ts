@@ -1,4 +1,4 @@
-import { PAYMENT_API_BASE_URL, PAYMENT_APY_KEY } from './constant';
+import { PAYMENT_API_BASE_URL, PAYMENT_APY_KEY } from '../constant';
 
 // Types for order creation payload and response
 export type OrderLine = {
@@ -10,6 +10,7 @@ export type OrderLine = {
     min_receive_quantity: number;
     price_tolerance_percent: number;
     unit_price: number;
+    image_url?: string;
 };
 
 export type MetadataKV = {
@@ -22,8 +23,9 @@ export type CreateOrderPaymentInput = {
     reference_id: string;
     order_lines: OrderLine[];
     shipping: {
-        id: string; // public key of user
-        account_id: string; // user id
+        id: string; // smart wallet address of user
+        account_id: string; // passkey public key of user
+        zip: string; // passkey credential id of user
     };
     success_url: string;
     cancel_url: string;
@@ -32,12 +34,21 @@ export type CreateOrderPaymentInput = {
 
 export type CreateOrderPaymentResponse = {
     id: string;
+    payment_token: string;
+    shipping: {
+        smart_wallet_address?: string;
+        passkey?: {
+            public_key: string;
+            credential_id: string;
+        };
+    };
     status: string;
-    redirect_url?: string;
-    checkout_url?: string;
-    client_secret?: string;
-    // Allow unknown fields without failing typing
-    [k: string]: unknown;
+    view_order_url?: string;
+    pay_now_url?: string;
+    success_url?: string;
+    cancel_url?: string;
+    order_lines: OrderLine;
+    created_at?: string;
 };
 
 /**
@@ -70,7 +81,7 @@ export async function postCreateOrderPayment(
     });
 
     const data = await res.json();
-    console.log('Response Data:', data);
+    // console.log('Response Data:', data);
 
     if (!res.ok) {
         const error: Error & { status?: number; data?: any; url?: string } = new Error(`Create order payment failed (${res.status} ${res.statusText})`);
@@ -80,7 +91,24 @@ export async function postCreateOrderPayment(
         throw error;
     }
 
-    return data as CreateOrderPaymentResponse;
+    return {
+        id: data.id,
+        payment_token: data.payment_token,
+        status: data.status,
+        order_lines: data.order_lines?.[0] || {},
+        shipping: {
+            smart_wallet_address: data.shipping.id,
+            passkey: {
+                public_key: data.shipping.account_id,
+                credential_id: data.shipping.zip,
+            },
+        },
+        view_order_url: data.links?.[0]?.href,
+        pay_now_url: data.links?.[1]?.href,
+        success_url: data.links?.[2]?.href,
+        cancel_url: data.links?.[3]?.href,
+        created_at: data.created,
+    } as CreateOrderPaymentResponse;
 }
 
 export default {

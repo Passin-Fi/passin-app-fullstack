@@ -14,6 +14,10 @@ import IconUSD from 'src/components/icons/IconUSD';
 import IconVND from 'src/components/icons/IconVND';
 import useTokenPrice from 'src/hooks/useTokenPrice';
 import { dataPools } from '../../data';
+import { usePasskeyConnected, usePasskeyConnectedValue } from 'src/jotai/connect-wallet/hooks';
+import { useWallet } from '@lazorkit/wallet';
+import { sleep } from 'src/utils';
+import { iconMap } from 'crypto-icons/index';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -34,6 +38,8 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
     const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit, 'USD');
     const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
+    const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
+    const { createPasskeyOnly } = useWallet();
 
     function handleChangeAmountToken(value: string) {
         const amountToken = value;
@@ -60,6 +66,12 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
         try {
             const slippage = 0.05; // 5%
 
+            let passkey = passkeyConnected;
+            if (!passkey) {
+                passkey = await createPasskeyOnly();
+                setPasskeyConnected(passkey);
+            }
+
             const bodyData = {
                 id_pool: idPool,
                 reference_id: Date.now() + '-' + idPool,
@@ -73,13 +85,14 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                         price_tolerance_percent: slippage * 100,
                         supplier: dataPools[idPool].name,
                         supplier_id: dataPools[idPool].id,
+                        image_url: iconMap[dataPools[idPool].tokenDeposit as TokenSymbol].lightMode,
                     },
                 ],
-                shipping: { id: 'user-public-key', account_id: 'user-id' },
+                shipping: { id: '', account_id: passkey.publicKey, zip: passkey.credentialId },
             } as OrderPaymentInput;
 
             console.log('Request body data:', bodyData);
-            return;
+            // return;
             const response = await fetch('/api/orders', {
                 method: 'POST',
                 headers: {
@@ -124,7 +137,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                                 <SelectTrigger className="!bg-transparent [&_svg]:!text-primary border-none" style={{ height: '30px' }}>
                                     <SelectValue className="font-bold" />
                                 </SelectTrigger>
-                                <SelectContent className="border shadow-md">
+                                <SelectContent className="border-secondary shadow-md" align="end" sideOffset={4}>
                                     <SelectItem value="USD">
                                         USD <IconUSD size={30} className="mobile:size-4 not-mobile:size-5" />
                                     </SelectItem>

@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
-import { MetadataKV, OrderLine, postCreateOrderPayment } from 'src/services/payment-api';
+import { CreateOrderPaymentInput, MetadataKV, OrderLine, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
 
 // CreateOrder API (POST)
 export type OrderPaymentInput = {
     id_pool: string;
-    reference_id: string;
-    order_lines: OrderLine[];
-    shipping: {
-        id: string; // public key of user
-        account_id: string; // user id
-    };
+    reference_id: CreateOrderPaymentInput['reference_id'];
+    order_lines: CreateOrderPaymentInput['order_lines'];
+    shipping: CreateOrderPaymentInput['shipping'];
     currency?: string;
     success_url?: string;
     cancel_url?: string;
@@ -32,7 +29,7 @@ export async function POST(request: Request) {
             ...reqBody,
         });
 
-        console.log('Response from external API:', response);
+        // console.log('Response from external API:', response);
         return NextResponse.json(response);
     } catch (error) {
         console.error('Error in POST /api/orders:', error);

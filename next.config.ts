@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
     images: {
         remotePatterns: [{ hostname: 'firebasestorage.googleapis.com', protocol: 'https' }],
     },
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/pools',
+                permanent: false, // save cached redirect
+            },
+        ];
+    },
 };
 
 export default nextConfig;
