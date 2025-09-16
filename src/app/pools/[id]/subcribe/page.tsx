@@ -8,7 +8,7 @@ import React from 'react';
 import { Button } from 'shadcn/button';
 import { Input } from 'shadcn/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'shadcn/select';
-import { OrderPaymentInput } from 'src/app/api/orders/route';
+import { OrderPaymentInput } from 'backend/api/orders/route';
 import CardCustom from 'src/components/card-custom/CardCustom';
 import IconUSD from 'src/components/icons/IconUSD';
 import IconVND from 'src/components/icons/IconVND';

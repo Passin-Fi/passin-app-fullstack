@@ -19,6 +19,7 @@
             }
         ],
         "paths": {
+            "backend/*": ["./src/app/(backend)/*"],
             "crypto-icons/*": ["./src/components/crypto-icons/*"],
             "shadcn/*": ["./src/components/ui/*"],
             "src/*": ["./src/*"],

@@ -1,0 +1,76 @@
+import { NextResponse } from 'next/server';
+import { getOrdersCollection } from 'backend/_lib/collections';
+import type { OrderDoc } from 'backend/_types/order';
+import { CreateOrderPaymentInput, MetadataKV, OrderLine, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
+
+// CreateOrder API (POST)
+export type OrderPaymentInput = {
+    id_pool: string;
+    reference_id: CreateOrderPaymentInput['reference_id'];
+    order_lines: CreateOrderPaymentInput['order_lines'];
+    shipping: CreateOrderPaymentInput['shipping'];
+    currency?: string;
+    success_url?: string;
+    cancel_url?: string;
+    metadata?: MetadataKV[];
+};
+
+export async function POST(request: Request) {
+    try {
+        const reqBody = await request.json();
+        console.log('Request Body:', reqBody);
+
+        // Lấy origin từ headers
+        const origin = request.headers.get('origin') || `https://${request.headers.get('host')}`;
+
+        // Gửi yêu cầu đến API thanh toán bên ngoài
+        const response = await postCreateOrderPayment({
+            currency: 'USD',
+            cancel_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=cancel`,
+            success_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=success`,
+            ...reqBody,
+        });
+
+        // Lưu đơn hàng vào MongoDB (idempotent theo reference_id)
+        try {
+            const orders = await getOrdersCollection();
+            const doc: OrderDoc = {
+                reference_id: reqBody.reference_id,
+                id_pool: reqBody.id_pool,
+                request: reqBody,
+                payment: response,
+                status: (response as any)?.status ?? 'created',
+                created_at: (response as any)?.created_at ? new Date((response as any).created_at) : new Date(),
+                updated_at: new Date(),
+            };
+            await orders.updateOne({ reference_id: reqBody.reference_id }, { $set: doc, $setOnInsert: { created_at: doc.created_at } }, { upsert: true });
+        } catch (dbErr) {
+            console.error('Warning: failed to persist order to MongoDB:', dbErr);
+            // Không chặn luồng API nếu DB lỗi; vẫn trả kết quả thanh toán.
+        }
+
+        return NextResponse.json(response);
+    } catch (error) {
+        console.error('Error in POST /api/orders:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
+
+// Optional: GET /api/orders?reference_id=...
+export async function GET(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const referenceId = searchParams.get('reference_id');
+        if (!referenceId) {
+            return NextResponse.json({ error: 'reference_id is required' }, { status: 400 });
+        }
+
+        const orders = await getOrdersCollection();
+        const order = await orders.findOne({ reference_id: referenceId });
+        if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        return NextResponse.json(order);
+    } catch (error) {
+        console.error('Error in GET /api/orders:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
