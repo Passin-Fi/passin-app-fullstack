@@ -3,9 +3,11 @@ import { Geist_Mono, Mulish } from 'next/font/google';
 import './globals.css';
 import { BugIcon } from 'lucide-react';
 import Link from 'next/link';
-import { ThemeProvider } from 'src/components/provider/ThemeProvider';
+import ProgressProvider from 'src/components/provider/ProgressProvider';
+import ThemeProvider from 'src/components/provider/ThemeProvider';
 import JotaiProvider from 'src/components/provider/JotaiProvider';
 import LazorkitProvider from 'src/components/provider/LazorkitProvider';
+import ReactQueryProvider from 'src/components/provider/ReactQueryProvider';
 import { ToastContainer } from 'react-toastify';
 import { KEYWORDS, SITE_DESCRIPTION, SITE_TITLE, SITE_URL, THUMBNAIL } from 'src/constant/metadata';
 import Layout from 'src/components/layout/Layout';
@@ -79,21 +81,25 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${mulish.className} ${geistMono.variable} antialiased container`}>
-                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-                    <JotaiProvider>
-                        <LazorkitProvider>
-                            <Layout>{children}</Layout>
-                        </LazorkitProvider>
-                    </JotaiProvider>
-                    {process.env.NODE_ENV === 'development' && (
-                        <div style={{ position: 'fixed', bottom: 16, right: 16, cursor: 'pointer', zIndex: 1000 }}>
-                            <Link href="/ui-components" title="Typography Test Page">
-                                <BugIcon />
-                            </Link>
-                        </div>
-                    )}
-                </ThemeProvider>
-                <ToastContainer />
+                <ProgressProvider>
+                    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+                        <JotaiProvider>
+                            <LazorkitProvider>
+                                <ReactQueryProvider>
+                                    <Layout>{children}</Layout>
+                                </ReactQueryProvider>
+                            </LazorkitProvider>
+                        </JotaiProvider>
+                        {process.env.NODE_ENV === 'development' && (
+                            <div style={{ position: 'fixed', bottom: 16, right: 16, cursor: 'pointer', zIndex: 1000 }}>
+                                <Link href="/ui-components" title="Typography Test Page">
+                                    <BugIcon />
+                                </Link>
+                            </div>
+                        )}
+                    </ThemeProvider>
+                    <ToastContainer />
+                </ProgressProvider>
             </body>
         </html>
     );

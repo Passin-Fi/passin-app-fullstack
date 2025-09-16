@@ -21,6 +21,10 @@ export const iconMap: Record<string, ImagePaths> = {
     lightMode: baseImgUrlToken("SOL-lightmode"),
     darkMode: baseImgUrlToken("SOL-darkmode")
   },
+  "USDC": {
+    lightMode: baseImgUrlToken("USDC"),
+    darkMode: baseImgUrlToken("USDC")
+  },
   "USDT": {
     lightMode: baseImgUrlToken("USDT"),
     darkMode: baseImgUrlToken("USDT")

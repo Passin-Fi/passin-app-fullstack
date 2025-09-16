@@ -7,19 +7,29 @@ import CardIntroduce from '../../../views/pools/card-introduce/CardIntroduce';
 import Link from 'next/link';
 import PoolButtons from 'src/views/pools/pool-buttons/PoolButtons';
 import CardPoolInfo from 'src/views/pools/card-pool-info/CardPoolInfo';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from 'shadcn/breadcrumb';
+import { dataPools } from '../data';
 
 export default function DetailPool() {
-    const params = useParams<{ id: string }>();
+    const { id: idPool } = useParams<{ id: string }>();
 
     return (
         <div className="pb-[100px]">
-            <Link href={'/pools'}>
-                <div className="flex place-items-center gap-1 mb-3">
-                    <ChevronLeft size={16} />
-                    <h4 className="font-bold">Pools/{params.id.toUpperCase()}</h4>
-                </div>
-            </Link>
-            <CardPoolInfo />
+            <Breadcrumb className="mb-8">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href="/pools">Pools</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage className="font-bold">{dataPools[idPool].name}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+
+            <CardPoolInfo dataPool={dataPools[idPool]} />
             <div className="desktop:flex desktop:gap-2">
                 <CardInfomation />
                 <CardIntroduce />

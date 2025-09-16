@@ -1,55 +1,157 @@
 'use client';
 
 import { CryptoIcon } from 'crypto-icons/CryptoIcon';
+import { TokenSymbol } from 'crypto-icons/types';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React from 'react';
 import { Button } from 'shadcn/button';
 import { Input } from 'shadcn/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'shadcn/select';
+import { OrderPaymentInput } from 'src/app/api/orders/route';
 import CardCustom from 'src/components/card-custom/CardCustom';
+import IconUSD from 'src/components/icons/IconUSD';
+import IconVND from 'src/components/icons/IconVND';
+import useTokenPrice from 'src/hooks/useTokenPrice';
+import { dataPools } from '../../data';
 
 export default function Subcribe() {
-    const params = useParams<{ id: string }>();
+    const { id: idPool } = useParams<{ id: string }>();
 
+    if (!dataPools[idPool]) {
+        return (
+            <div className="flex justify-center items-center h-60">
+                <h1>Pool not found</h1>
+            </div>
+        );
+    }
+
+    return <UIPoolIdValid idPool={idPool} />;
+}
+
+function UIPoolIdValid({ idPool }: { idPool: string }) {
+    const priceTokenInVND = useTokenPrice(dataPools[idPool].tokenDeposit, 'VND');
+    const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit, 'USD');
+    const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
+    const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
+
+    function handleChangeAmountToken(value: string) {
+        const amountToken = value;
+        const amountVND = priceTokenInVND.data ? (parseFloat(amountToken) * priceTokenInVND.data.rate).toFixed(2) : '0';
+        const amountUSD = priceTokenInUSD.data ? (parseFloat(amountToken) * priceTokenInUSD.data.rate).toFixed(4) : '0';
+        setInputValue({ amountToken, amountVND, amountUSD });
+    }
+
+    function handleChangeAmountQuote(value: string, fiat: 'USD' | 'VND') {
+        if (fiat === 'VND') {
+            const amountVND = value;
+            const amountToken = priceTokenInVND.data ? (parseFloat(amountVND) / priceTokenInVND.data.rate).toFixed(2) : '0';
+            const amountUSD = priceTokenInUSD.data ? (parseFloat(amountToken) * priceTokenInUSD.data.rate).toFixed(4) : '0';
+            setInputValue({ amountToken, amountVND, amountUSD });
+        } else {
+            const amountUSD = value;
+            const amountToken = priceTokenInUSD.data ? (parseFloat(amountUSD) / priceTokenInUSD.data.rate).toFixed(4) : '0';
+            const amountVND = priceTokenInVND.data ? (parseFloat(amountToken) * priceTokenInVND.data.rate).toFixed(2) : '0';
+            setInputValue({ amountToken, amountVND, amountUSD });
+        }
+    }
+
+    async function subcribe() {
+        try {
+            const slippage = 0.05; // 5%
+
+            const bodyData = {
+                id_pool: idPool,
+                reference_id: Date.now() + '-' + idPool,
+                order_lines: [
+                    {
+                        key: dataPools[idPool].tokenDeposit,
+                        title: `Subcribe in Pool ${dataPools[idPool].name}`,
+                        quantity: parseFloat(inputValue.amountToken),
+                        unit_price: parseFloat(priceTokenInUSD.data ? priceTokenInUSD.data.rate.toFixed(4) : '0'),
+                        min_receive_quantity: parseFloat((parseFloat(inputValue.amountToken) * (1 - slippage)).toFixed(4)),
+                        price_tolerance_percent: slippage * 100,
+                        supplier: dataPools[idPool].name,
+                        supplier_id: dataPools[idPool].id,
+                    },
+                ],
+                shipping: { id: 'user-public-key', account_id: 'user-id' },
+            } as OrderPaymentInput;
+
+            console.log('Request body data:', bodyData);
+            return;
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bodyData),
+            });
+            const data = await response.json();
+            console.log('Response data:', data);
+        } catch (error) {
+            console.error('Error subcribe:', error);
+        }
+    }
     return (
-        <CardCustom>
-            <h4 className="text-center font-bold">Deposit in Pool {params.id}</h4>
-            <div>
-                <p className="muted">Enter amount</p>
-                <Input
-                    placeholder="0,00"
-                    type="number"
-                    endAdornment={
-                        <>
-                            <span className="font-bold">USDT</span>
-                            <CryptoIcon name="USDT" size={14} />
-                        </>
-                    }
-                    endAdornmentClassName="flex items-center gap-1"
-                />
-            </div>
-            <div className="mt-4">
-                <p className="muted">Spend</p>
-                <Input
-                    placeholder="0,00"
-                    type="number"
-                    endAdornment={
-                        <>
-                            <span className="font-bold">VND</span>
-                            <CryptoIcon name="VND" size={14} />
-                        </>
-                    }
-                    endAdornmentClassName="flex items-center gap-1"
-                />
-            </div>
-            <div className="flex gap-2 mt-4">
-                <Button variant={'outline'} className="flex-1">
-                    <Link className="w-full" href={`/pools/${params.id}`}>
-                        Cancel
-                    </Link>
-                </Button>
-                <Button className="flex-1">Subcribe</Button>
-            </div>
-        </CardCustom>
+        <div className="max-w-md mx-auto mt-4">
+            <CardCustom>
+                <h4 className="text-center font-bold">Deposit in Pool {dataPools[idPool].name}</h4>
+                <div className="mt-4">
+                    <p className="muted">Enter amount</p>
+                    <Input
+                        placeholder="0"
+                        type="number"
+                        endAdornment={
+                            <>
+                                <span className="font-bold">USDT</span>
+                                <CryptoIcon name={dataPools[idPool].tokenDeposit} size={30} className="mobile:size-4 not-mobile:size-5" />
+                            </>
+                        }
+                        endAdornmentClassName="flex items-center gap-1"
+                        value={inputValue.amountToken}
+                        onChange={(e) => handleChangeAmountToken(e.target.value)}
+                    />
+                </div>
+                <div className="mt-4">
+                    <p className="muted">Spend</p>
+                    <Input
+                        warpperClassName="!pr-0"
+                        placeholder="0"
+                        type="number"
+                        endAdornment={
+                            <Select value={selectedFiat} onValueChange={(value) => setSelectedFiat(value as 'USD' | 'VND')}>
+                                <SelectTrigger className="!bg-transparent [&_svg]:!text-primary border-none" style={{ height: '30px' }}>
+                                    <SelectValue className="font-bold" />
+                                </SelectTrigger>
+                                <SelectContent className="border shadow-md">
+                                    <SelectItem value="USD">
+                                        USD <IconUSD size={30} className="mobile:size-4 not-mobile:size-5" />
+                                    </SelectItem>
+                                    <SelectItem value="VND">
+                                        VND <IconVND size={30} className="mobile:size-4 not-mobile:size-5" />
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        }
+                        endAdornmentClassName=""
+                        value={selectedFiat === 'VND' ? inputValue.amountVND : inputValue.amountUSD}
+                        onChange={(e) => handleChangeAmountQuote(e.target.value, selectedFiat)}
+                    />
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                    {' '}
+                    <Button variant={'outline'} className="flex-1">
+                        <Link className="w-full" href={`/pools/${idPool}`}>
+                            Cancel
+                        </Link>
+                    </Button>
+                    <Button className="flex-1" onClick={subcribe}>
+                        Subcribe
+                    </Button>
+                </div>
+            </CardCustom>
+        </div>
     );
 }
