@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getOrdersCollection } from 'backend/_lib/collections';
-import type { OrderDoc } from 'backend/_types/order';
-import { CreateOrderPaymentInput, MetadataKV, OrderLine, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
+import { PaymentStatus, type OrderDoc } from 'backend/_types/order';
+import { CreateOrderPaymentInput, CreateOrderPaymentResponse, MetadataKV, OrderLine, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
 
 // CreateOrder API (POST)
 export type OrderPaymentInput = {
@@ -24,26 +24,32 @@ export async function POST(request: Request) {
         const origin = request.headers.get('origin') || `https://${request.headers.get('host')}`;
 
         // Gửi yêu cầu đến API thanh toán bên ngoài
-        const response = await postCreateOrderPayment({
-            currency: 'USD',
-            cancel_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=cancel`,
-            success_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=success`,
-            ...reqBody,
-        });
+        let response: CreateOrderPaymentResponse;
+        try {
+            response = await postCreateOrderPayment({
+                currency: 'USD',
+                cancel_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=cancel`,
+                success_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=success`,
+                ...reqBody,
+            });
+        } catch (apiErr) {
+            console.error('Error creating order payment:', apiErr);
+            return NextResponse.json({ error: 'Failed to create order payment' }, { status: 502 });
+        }
 
         // Lưu đơn hàng vào MongoDB (idempotent theo reference_id)
         try {
             const orders = await getOrdersCollection();
-            const doc: OrderDoc = {
+            const createdAt = (response as any)?.created_at ? new Date((response as any).created_at) : new Date();
+            const toSet: Omit<OrderDoc, '_id' | 'created_at'> = {
                 reference_id: reqBody.reference_id,
                 id_pool: reqBody.id_pool,
                 request: reqBody,
                 payment: response,
-                status: (response as any)?.status ?? 'created',
-                created_at: (response as any)?.created_at ? new Date((response as any).created_at) : new Date(),
+                status: PaymentStatus.Pending,
                 updated_at: new Date(),
             };
-            await orders.updateOne({ reference_id: reqBody.reference_id }, { $set: doc, $setOnInsert: { created_at: doc.created_at } }, { upsert: true });
+            await orders.updateOne({ reference_id: reqBody.reference_id }, { $set: toSet, $setOnInsert: { created_at: createdAt } }, { upsert: true });
         } catch (dbErr) {
             console.error('Warning: failed to persist order to MongoDB:', dbErr);
             // Không chặn luồng API nếu DB lỗi; vẫn trả kết quả thanh toán.

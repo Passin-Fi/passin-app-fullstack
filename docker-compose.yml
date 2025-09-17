@@ -13,7 +13,7 @@ services:
             MONGO_INITDB_DATABASE: ezsol
             # App-level user (created by init script)
             MONGO_APP_USER: ezsol_app
-            MONGO_APP_PASSWORD: ezsol_app_password
+            MONGO_APP_PASSWORD: Zxcvbnm123
         ports:
             - '27017:27017'
         volumes:

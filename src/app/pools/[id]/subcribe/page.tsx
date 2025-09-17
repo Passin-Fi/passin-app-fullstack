@@ -18,6 +18,7 @@ import { usePasskeyConnected, usePasskeyConnectedValue } from 'src/jotai/connect
 import { useWallet } from '@lazorkit/wallet';
 import { sleep } from 'src/utils';
 import { iconMap } from 'crypto-icons/index';
+import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -68,7 +69,12 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
 
             let passkey = passkeyConnected;
             if (!passkey) {
-                passkey = await createPasskeyOnly();
+                // passkey = await createPasskeyOnly();
+                passkey = {
+                    publicKey: 'A+eWPD8zgy9caOL5NC8+1wItIJ2LRhcxThmfI2oG4Ass',
+                    credentialId: 'Uuy8LYTPorWb9Wj+y8APFg==',
+                    isCreated: true,
+                };
                 setPasskeyConnected(passkey);
             }
 
@@ -165,6 +171,28 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     </Button>
                 </div>
             </CardCustom>
+            <TestGetPaymentStatus />
         </div>
+    );
+}
+
+function TestGetPaymentStatus() {
+    const [paymentId, setPaymentId] = React.useState<string>('');
+
+    async function getStatus() {
+        try {
+            const res = await fetch(`/api/orders/${paymentId}/capture`, { method: 'GET' });
+            const data = await res.json();
+            console.log('Raw response data:', data);
+        } catch (error) {
+            console.error('Error get payment status:', error);
+        }
+    }
+
+    return (
+        <>
+            <Input placeholder="Payment ID" value={paymentId} onChange={(e) => setPaymentId(e.target.value)} />
+            <Button onClick={getStatus}>Test get</Button>
+        </>
     );
 }
