@@ -15,10 +15,11 @@ import IconVND from 'src/components/icons/IconVND';
 import useTokenPrice from 'src/hooks/useTokenPrice';
 import { dataPools } from '../../data';
 import { usePasskeyConnected, usePasskeyConnectedValue } from 'src/jotai/connect-wallet/hooks';
-import { useWallet } from '@lazorkit/wallet';
+import { PasskeyData, useWallet } from '@lazorkit/wallet';
 import { iconMap } from 'crypto-icons/index';
 import { lazorkitProgram } from 'backend/_helper/const';
 import { convertArrayNumberToBase64, convertBase64ToArrayNumber } from 'src/utils';
+import { toast } from 'react-toastify';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -40,7 +41,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
     const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
     const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
-    const { createPasskeyOnly } = useWallet();
+    const { createPasskeyOnly, smartWalletPubkey, wallet } = useWallet();
 
     function handleChangeAmountToken(value: string) {
         const amountToken = value;
@@ -65,18 +66,36 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
 
     async function subcribe() {
         try {
-            const slippage = 0.05; // 5%
+            if (!smartWalletPubkey && !passkeyConnected) {
+                toast.error('Please login first!');
+                return;
+            }
 
-            let passkey = passkeyConnected;
-            if (!passkey) {
-                // passkey = await createPasskeyOnly();
+            let passkey: PasskeyData | null = null;
+            let smartWallet = '';
+
+            if (smartWalletPubkey) {
+                smartWallet = smartWalletPubkey.toString();
                 passkey = {
-                    publicKey: 'A+eWPD8zgy9caOL5NC8+1wItIJ2LRhcxThmfI2oG4Ass',
-                    credentialId: 'Uuy8LYTPorWb9Wj+y8APFg==',
+                    publicKey: wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : '',
+                    credentialId: wallet ? wallet.credentialId : '',
                     isCreated: true,
                 };
-                setPasskeyConnected(passkey);
+            } else {
+                passkey = passkeyConnected;
+                const getSmartWallet = await lazorkitProgram.getSmartWalletByPasskey(convertBase64ToArrayNumber(passkey?.publicKey || ''));
+                if (getSmartWallet.smartWallet) {
+                    toast.info('Found existing smart wallet for this passkey! Please connect smart wallet to continue.');
+                    return;
+                }
             }
+
+            const slippage = 0.05; // 5%
+            // passkey = {
+            //     publicKey: 'A+eWPD8zgy9caOL5NC8+1wItIJ2LRhcxThmfI2oG4Ass',
+            //     credentialId: 'Uuy8LYTPorWb9Wj+y8APFg==',
+            //     isCreated: true,
+            // };
 
             const bodyData = {
                 id_pool: idPool,
@@ -87,7 +106,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                         title: `Subcribe in Pool ${dataPools[idPool].name}`,
                         quantity: parseFloat(inputValue.amountToken),
                         unit_price: parseFloat(priceTokenInUSD.data ? priceTokenInUSD.data.rate.toFixed(4) : '0'),
-                        min_receive_quantity: parseFloat((parseFloat(inputValue.amountToken) * (1 - slippage)).toFixed(4)),
+                        min_receive_quantity: parseFloat((parseFloat(inputValue.amountToken) * (1 - slippage)).toFixed(0)),
                         price_tolerance_percent: slippage * 100,
                         supplier: dataPools[idPool].name,
                         supplier_id: dataPools[idPool].id,
@@ -95,7 +114,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                         note: dataPools[idPool].tokenDeposit.prettyName,
                     },
                 ],
-                shipping: { id: '', account_id: passkey.publicKey, zip: passkey.credentialId },
+                shipping: { id: smartWallet, account_id: passkey!.publicKey, zip: passkey!.credentialId },
             } as OrderPaymentInput;
 
             console.log('Request body data:', bodyData);
@@ -161,7 +180,6 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 </div>
 
                 <div className="flex gap-2 mt-4">
-                    {' '}
                     <Button variant={'outline'} className="flex-1">
                         <Link className="w-full" href={`/pools/${idPool}`}>
                             Cancel

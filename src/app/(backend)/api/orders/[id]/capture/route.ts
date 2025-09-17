@@ -29,39 +29,48 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             console.error('Error fetching payment status:', apiErr);
             return NextResponse.json({ error: 'Failed to fetch payment status' }, { status: 502 });
         }
-        // Try to create smart wallet
-        let createWallet;
-        try {
-            createWallet = await createSmartWallet(
-                {
-                    credentialId: response.shipping.passkey!.credential_id,
-                    publicKey: response.shipping.passkey!.public_key,
-                    isCreated: true,
-                },
-                new PublicKey(response.order_lines.key),
-                // response.order_lines.quantity
-                2000000 // For testing, transfer 2 tokens to new smart wallet
-            );
-            console.log('Smart Wallet created:', createWallet);
-        } catch (walletErr) {
-            console.error('Smart wallet creation failed:', walletErr);
-            // Update order status to create smartwallet fail and return the order at that time
+
+        let createWallet: { walletAddress: string; isCreated: boolean };
+        if (response.shipping.smart_wallet_address) {
+            createWallet = {
+                walletAddress: response.shipping.smart_wallet_address,
+                isCreated: true,
+            };
+        } else {
+            // Try to create smart wallet
             try {
-                const orders = await getOrdersCollection();
-                await orders.updateOne(
-                    { 'payment.id': payment_id },
+                createWallet = await createSmartWallet(
                     {
-                        $set: {
-                            status: PaymentStatus.CreateWalletFail,
-                            updated_at: new Date(),
-                        },
-                    }
+                        credentialId: response.shipping.passkey!.credential_id,
+                        publicKey: response.shipping.passkey!.public_key,
+                        isCreated: true,
+                    },
+                    new PublicKey(response.order_lines.key),
+                    // response.order_lines.quantity
+                    2000000, // For testing, transfer 2 tokens to new smart wallet
+                    response.shipping.smart_wallet_address
                 );
-                const updatedOrder = await orders.findOne({ 'payment.id': payment_id });
-                return NextResponse.json(updatedOrder);
-            } catch (dbErr) {
-                console.error('Failed to update order after wallet creation failure:', dbErr);
-                return NextResponse.json({ error: 'Smart wallet creation failed' }, { status: 500 });
+                console.log('Smart Wallet created:', createWallet);
+            } catch (walletErr) {
+                console.error('Smart wallet creation failed:', walletErr);
+                // Update order status to create smartwallet fail and return the order at that time
+                try {
+                    const orders = await getOrdersCollection();
+                    await orders.updateOne(
+                        { 'payment.id': payment_id },
+                        {
+                            $set: {
+                                status: PaymentStatus.CreateWalletFail,
+                                updated_at: new Date(),
+                            },
+                        }
+                    );
+                    const updatedOrder = await orders.findOne({ 'payment.id': payment_id });
+                    return NextResponse.json(updatedOrder);
+                } catch (dbErr) {
+                    console.error('Failed to update order after wallet creation failure:', dbErr);
+                    return NextResponse.json({ error: 'Smart wallet creation failed' }, { status: 500 });
+                }
             }
         }
 

@@ -10,10 +10,11 @@ import { IconX } from 'src/components/icons/IconX';
 import { IconTelegram } from 'src/components/icons/IconTelegram';
 import { useTheme } from 'next-themes';
 import { Sun } from 'lucide-react';
+import { useWallet } from '@lazorkit/wallet';
 
 export default function Account() {
     const { setTheme, theme } = useTheme();
-
+    const { isConnected, disconnect } = useWallet();
     return (
         <div>
             <div className="flex place-items-center justify-between">
@@ -48,9 +49,12 @@ export default function Account() {
                     <IconX style={{ width: '30px', height: '30px' }} />
                     <IconTelegram style={{ width: '30px', height: '30px' }} />
                 </div>
-                <Button variant={'outline'} className="w-[130px] text-center mt-4">
-                    Log out
-                </Button>
+
+                {isConnected && (
+                    <Button variant={'outline'} className="w-[130px] text-center mt-4" onClick={() => disconnect()}>
+                        Log out
+                    </Button>
+                )}
             </div>
         </div>
     );

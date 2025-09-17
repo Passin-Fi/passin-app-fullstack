@@ -4,7 +4,7 @@ import { BackendSolanaClient, connection, gasPriceInstruction, lazorkitProgram }
 import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token';
 
-export async function createSmartWallet(passKeys: PasskeyData, tokenMint: PublicKey, amount: number): Promise<{ walletAddress: string; isCreated: boolean }> {
+export async function createSmartWallet(passKeys: PasskeyData, tokenMint: PublicKey, amount: number, smartWalletOfPasskeys?: string): Promise<{ walletAddress: string; isCreated: boolean }> {
     try {
         if (process.env.WALLET_BE == undefined) {
             throw new Error('Backend wallet not configured');
@@ -18,21 +18,24 @@ export async function createSmartWallet(passKeys: PasskeyData, tokenMint: Public
         const passkeyPubkey = convertBase64ToArrayNumber(publicKeyBase64);
 
         const smartWalletId = lazorkitProgram.generateWalletId();
-        const smartWallet = lazorkitProgram.smartWalletPda(smartWalletId);
+        const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.smartWalletPda(smartWalletId);
 
         const walletDevice = lazorkitProgram.walletDevicePda(smartWallet, passkeyPubkey);
 
-        const credentialId = Buffer.from('testing');
+        const credentialId = Buffer.from(passKeys.credentialId);
 
         const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(provider.publicKey, smartWallet, walletDevice);
 
-        const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletInstruction(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
-            passkeyPubkey,
-            credentialId,
-            policyData: policyInstruction.data,
-            walletId: smartWalletId,
-            isPayForUser: true,
-        });
+        if (!smartWalletOfPasskeys) {
+            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletInstruction(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
+                passkeyPubkey,
+                credentialId,
+                policyData: policyInstruction.data,
+                walletId: smartWalletId,
+                isPayForUser: true,
+            });
+            ixs.push(createSmartWalletIx);
+        }
 
         const createAccountIx = createAssociatedTokenAccountIdempotentInstruction(provider.publicKey, getAssociatedTokenAddressSync(tokenMint, smartWallet, true), smartWallet, tokenMint);
 
@@ -43,7 +46,7 @@ export async function createSmartWallet(passKeys: PasskeyData, tokenMint: Public
             amount
         );
 
-        ixs.push(createSmartWalletIx, createAccountIx, transferTokenIx);
+        ixs.push(createAccountIx, transferTokenIx);
 
         const signature = await sendVersionedTransaction(ixs, signerKeypairs);
         const check = await checkTransactionStatus(signature as string);
