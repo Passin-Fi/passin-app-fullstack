@@ -1,6 +1,6 @@
 'use client';
 
-import { Pickaxe, User, UserRound, Wallet } from 'lucide-react';
+import { FileClock, Pickaxe, UserRound, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { layoutConstants } from './constant';
@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 
 const menu = [
     { name: 'Acount', href: '/account', icon: UserRound },
+    { name: 'Orders', href: '/orders', icon: FileClock },
     { name: 'Pools', href: '/pools', icon: Pickaxe },
     { name: 'Assets', href: '/assets', icon: Wallet },
 ];

@@ -8,9 +8,11 @@ import useAllTokenBalanceInfos from 'src/hooks/solana/useAllTokenBalanceInfos';
 import useTokenPrice from 'src/hooks/useTokenPrice';
 import { TokenSymbol } from 'crypto-icons/types';
 import { BN } from 'src/utils';
+import { useWallet } from '@lazorkit/wallet';
 
 export default function YourCryptoInWallet() {
-    const { allSlpTokenBalances, native } = useAllTokenBalanceInfos('E15ePZMaiW5qfhW1U4ULA6oqWhAgY8DNUQJCnkEzj6LU');
+    const { smartWalletPubkey } = useWallet();
+    const { allSlpTokenBalances, native } = useAllTokenBalanceInfos(smartWalletPubkey?.toString() || '');
     return (
         <div className="mt-6">
             <h4 className="font-bold">Your Crypto In Wallet</h4>

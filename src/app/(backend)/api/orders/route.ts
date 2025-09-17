@@ -67,14 +67,27 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const referenceId = searchParams.get('reference_id');
-        if (!referenceId) {
-            return NextResponse.json({ error: 'reference_id is required' }, { status: 400 });
+        const passkeyPublicKey = searchParams.get('passkey_public_key');
+
+        if (referenceId && passkeyPublicKey) {
+            return NextResponse.json({ error: 'Provide either reference_id or passkey_public_key, not both' }, { status: 400 });
         }
 
         const orders = await getOrdersCollection();
-        const order = await orders.findOne({ reference_id: referenceId });
-        if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-        return NextResponse.json(order);
+
+        if (referenceId) {
+            const order = await orders.findOne({ reference_id: referenceId });
+            if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+            return NextResponse.json(order);
+        }
+
+        if (passkeyPublicKey) {
+            console.log('Searching orders with passkey public key:', passkeyPublicKey);
+            const orderList = await orders.find({ 'payment.shipping.passkey.public_key': passkeyPublicKey }).toArray();
+            return NextResponse.json(orderList);
+        }
+
+        return NextResponse.json({ error: 'reference_id or passkey_public_key is required' }, { status: 400 });
     } catch (error) {
         console.error('Error in GET /api/orders:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

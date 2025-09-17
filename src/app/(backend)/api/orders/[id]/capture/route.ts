@@ -82,7 +82,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                 {
                     $set: {
                         'payment.shipping.smart_wallet_address': createWallet.walletAddress,
-                        status: PaymentStatus.SendingTokenToSmartwallet,
+                        status: PaymentStatus.CompletedPay,
                         updated_at: new Date(),
                     },
                 }
