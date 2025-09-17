@@ -16,9 +16,9 @@ import useTokenPrice from 'src/hooks/useTokenPrice';
 import { dataPools } from '../../data';
 import { usePasskeyConnected, usePasskeyConnectedValue } from 'src/jotai/connect-wallet/hooks';
 import { useWallet } from '@lazorkit/wallet';
-import { sleep } from 'src/utils';
 import { iconMap } from 'crypto-icons/index';
-import { getPaymentStatus } from 'src/services/payment/get-payment-status';
+import { lazorkitProgram } from 'backend/_helper/const';
+import { convertArrayNumberToBase64, convertBase64ToArrayNumber } from 'src/utils';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -35,8 +35,8 @@ export default function Subcribe() {
 }
 
 function UIPoolIdValid({ idPool }: { idPool: string }) {
-    const priceTokenInVND = useTokenPrice(dataPools[idPool].tokenDeposit, 'VND');
-    const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit, 'USD');
+    const priceTokenInVND = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'VND');
+    const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'USD');
     const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
     const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
@@ -83,7 +83,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 reference_id: Date.now() + '-' + idPool,
                 order_lines: [
                     {
-                        key: dataPools[idPool].tokenDeposit,
+                        key: dataPools[idPool].tokenDeposit.address,
                         title: `Subcribe in Pool ${dataPools[idPool].name}`,
                         quantity: parseFloat(inputValue.amountToken),
                         unit_price: parseFloat(priceTokenInUSD.data ? priceTokenInUSD.data.rate.toFixed(4) : '0'),
@@ -91,7 +91,8 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                         price_tolerance_percent: slippage * 100,
                         supplier: dataPools[idPool].name,
                         supplier_id: dataPools[idPool].id,
-                        image_url: iconMap[dataPools[idPool].tokenDeposit as TokenSymbol].lightMode,
+                        image_url: iconMap[dataPools[idPool].tokenDeposit.symbol as TokenSymbol].lightMode,
+                        note: dataPools[idPool].tokenDeposit.prettyName,
                     },
                 ],
                 shipping: { id: '', account_id: passkey.publicKey, zip: passkey.credentialId },
@@ -123,8 +124,8 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                         type="number"
                         endAdornment={
                             <>
-                                <span className="font-bold">USDT</span>
-                                <CryptoIcon name={dataPools[idPool].tokenDeposit} size={30} className="mobile:size-4 not-mobile:size-5" />
+                                <span className="font-bold">{dataPools[idPool].tokenDeposit.symbol}</span>
+                                <CryptoIcon name={dataPools[idPool].tokenDeposit.symbol} size={30} className="mobile:size-4 not-mobile:size-5" />
                             </>
                         }
                         endAdornmentClassName="flex items-center gap-1"
@@ -177,7 +178,9 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
 }
 
 function TestGetPaymentStatus() {
+    const { smartWalletPubkey, connect } = useWallet();
     const [paymentId, setPaymentId] = React.useState<string>('');
+    const passkeyConnectedValue = usePasskeyConnectedValue();
 
     async function getStatus() {
         try {
@@ -189,10 +192,43 @@ function TestGetPaymentStatus() {
         }
     }
 
+    async function checkSmartWallet() {
+        try {
+            const response = await lazorkitProgram.getSmartWalletByPasskey(convertBase64ToArrayNumber('A+eWPD8zgy9caOL5NC8+1wItIJ2LRhcxThmfI2oG4Ass'));
+            console.log('Smart wallet status:', {
+                smartWallet: response.smartWallet?.toString(),
+                walletDevice: response.walletDevice?.toString(),
+            });
+        } catch (error) {
+            console.error('Error get smart wallet status:', error);
+        }
+    }
+
+    async function testConnect() {
+        try {
+            const res = await connect();
+            const passkey = convertArrayNumberToBase64(res.passkeyPubkey);
+            console.log('Connect wallet success:', { res, passkey });
+        } catch (error) {
+            console.error('Error connect wallet:', error);
+        }
+    }
+
     return (
-        <>
+        <div className="mt-4">
             <Input placeholder="Payment ID" value={paymentId} onChange={(e) => setPaymentId(e.target.value)} />
             <Button onClick={getStatus}>Test get</Button>
-        </>
+
+            <div>
+                <p>Smart wallet: {smartWalletPubkey?.toString()}</p>
+                <Button onClick={testConnect}>Test connect wallet</Button>
+            </div>
+
+            <div>
+                <Button variant={'destructive'} onClick={checkSmartWallet}>
+                    Check smart wallet
+                </Button>
+            </div>
+        </div>
     );
 }

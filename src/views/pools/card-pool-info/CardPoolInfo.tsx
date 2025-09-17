@@ -10,7 +10,7 @@ export default function CardPoolInfo({ dataPool }: { dataPool: TypePool }) {
         <CardCustom>
             <div className="flex place-items-center justify-between">
                 <div className="flex gap-1 place-items-center">
-                    <CryptoIcon name={dataPool.tokenDeposit} size={32} />
+                    <CryptoIcon name={dataPool.tokenDeposit.symbol} size={32} />
                     <h5>{dataPool.name}</h5>
                 </div>
                 <div className="text-right">
@@ -23,21 +23,21 @@ export default function CardPoolInfo({ dataPool }: { dataPool: TypePool }) {
                     <p className="muted">Your Balance</p>
                     <div className="flex place-items-center gap-1 justify-center">
                         <p className="lead font-bold ">{formatNumber(213.474)}</p>
-                        <CryptoIcon name={dataPool.tokenDeposit} size={14} />
+                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={14} />
                     </div>
                 </div>
                 <div>
                     <p className="muted">Total Profit</p>
                     <div className="flex place-items-center gap-1 justify-center">
                         <p className="lead font-bold ">{formatNumber(223.474)}</p>
-                        <CryptoIcon name={dataPool.tokenDeposit} size={14} />
+                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={14} />
                     </div>
                 </div>
                 <div>
                     <p className="muted">TVl Pool</p>
                     <div className="flex place-items-center gap-1 justify-center">
                         <p className="lead font-bold ">{formatNumber(223.474)}</p>
-                        <CryptoIcon name={dataPool.tokenDeposit} size={14} />
+                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={14} />
                     </div>
                 </div>
                 <div>

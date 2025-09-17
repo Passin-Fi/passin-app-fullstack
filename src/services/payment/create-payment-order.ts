@@ -11,6 +11,7 @@ export type OrderLine = {
     price_tolerance_percent: number;
     unit_price: number;
     image_url?: string;
+    note?: string;
 };
 
 export type MetadataKV = {

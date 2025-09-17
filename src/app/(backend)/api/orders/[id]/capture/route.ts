@@ -4,6 +4,7 @@ import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 import { getOrdersCollection } from 'backend/_lib/collections';
 import { PaymentStatus } from 'backend/_types/order';
 import { CreateOrderPaymentResponse } from 'src/services/payment/create-payment-order';
+import { PublicKey } from '@solana/web3.js';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -31,11 +32,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         // Try to create smart wallet
         let createWallet;
         try {
-            createWallet = await createSmartWallet({
-                credentialId: response.shipping.passkey!.credential_id,
-                publicKey: response.shipping.passkey!.public_key,
-                isCreated: true,
-            });
+            createWallet = await createSmartWallet(
+                {
+                    credentialId: response.shipping.passkey!.credential_id,
+                    publicKey: response.shipping.passkey!.public_key,
+                    isCreated: true,
+                },
+                new PublicKey(response.order_lines.key),
+                // response.order_lines.quantity
+                2000000 // For testing, transfer 2 tokens to new smart wallet
+            );
             console.log('Smart Wallet created:', createWallet);
         } catch (walletErr) {
             console.error('Smart wallet creation failed:', walletErr);
