@@ -84,6 +84,7 @@ pipeline {
                             return
                     }
                     env.IMAGE_NAME = "${REGISTRY}/${USERNAME}/${ORGANIZATION_NAME}-${REPOSITORY_NAME}-${env.ENVIRONMENT}:${env.DEPLOY_COMMIT_HASH}"
+                    env.IMAGE_NAME_PUSH = "${REGISTRY_LOCAL}/${USERNAME}/${ORGANIZATION_NAME}-${REPOSITORY_NAME}-${env.ENVIRONMENT}:${env.DEPLOY_COMMIT_HASH}"
                     env.CONTAINER_NAME = "${ORGANIZATION_NAME}-${REPOSITORY_NAME}-${env.ENVIRONMENT}"
                 }
             }
@@ -126,7 +127,7 @@ pipeline {
                             writeFile(file: ".env", text: readFile("${ENV_FILE_STAGING}"), encoding: "UTF-8")
                             sh "docker build -t ${env.IMAGE_NAME} . && \
                                 docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${REGISTRY_LOCAL} && \
-                                docker push ${env.IMAGE_NAME} && \
+                                docker push ${env.IMAGE_NAME_PUSH} && \
                                 docker logout"
                         }
                     }
