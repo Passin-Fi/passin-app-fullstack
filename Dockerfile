@@ -2,7 +2,7 @@ FROM node:22.12.0 AS build
 
 WORKDIR /app
 COPY . .
-RUN npm install --frozen-lockfile
+RUN npm ci
 
 RUN npm run build
 
