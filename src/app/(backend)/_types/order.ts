@@ -32,7 +32,7 @@ export interface OrderDoc {
     reference_id: string;
     id_pool: string;
     request: OrderRequest;
-    payment: CreateOrderPaymentResponse | Record<string, unknown>;
+    payment: CreateOrderPaymentResponse;
     status: PaymentStatus;
     created_at: Date;
     updated_at: Date;

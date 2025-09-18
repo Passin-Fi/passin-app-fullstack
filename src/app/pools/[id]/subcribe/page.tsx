@@ -20,6 +20,8 @@ import { iconMap } from 'crypto-icons/index';
 import { lazorkitProgram } from 'backend/_helper/const';
 import { convertArrayNumberToBase64, convertBase64ToArrayNumber } from 'src/utils';
 import { toast } from 'react-toastify';
+import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
+import useFetchOrders from 'src/views/orders/useFetchOrders';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -42,6 +44,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
     const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
     const { createPasskeyOnly, smartWalletPubkey, wallet } = useWallet();
+    const { refetch } = useFetchOrders(passkeyConnected?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
 
     function handleChangeAmountToken(value: string) {
         const amountToken = value;
@@ -118,7 +121,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             } as OrderPaymentInput;
 
             console.log('Request body data:', bodyData);
-            // return;
+            // create order
             const response = await fetch('/api/orders', {
                 method: 'POST',
                 headers: {
@@ -127,9 +130,12 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 body: JSON.stringify(bodyData),
             });
             const data = await response.json();
+            toast.success('Order created! Redirecting to payment...');
             console.log('Response data:', data);
+            refetch();
         } catch (error) {
             console.error('Error subcribe:', error);
+            toast.error('Error subcribe!' + (error instanceof Error ? ` ${error.message}` : ''));
         }
     }
     return (
@@ -185,13 +191,40 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                             Cancel
                         </Link>
                     </Button>
-                    <Button className="flex-1" onClick={subcribe}>
+                    {/* <Button className="flex-1" onClick={subcribe}>
                         Subcribe
-                    </Button>
+                    </Button> */}
+                    <ButtonSubcribe onClick={subcribe} />
                 </div>
             </CardCustom>
             <TestGetPaymentStatus />
         </div>
+    );
+}
+
+function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
+    const [loading, setLoading] = React.useState(false);
+
+    async function handleClick() {
+        setLoading(true);
+        try {
+            await onClick();
+        } catch (error) {
+            console.error('Error in ButtonSubcribe:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+    return (
+        <Button className="flex-1" onClick={handleClick} disabled={loading}>
+            {loading ? (
+                <>
+                    <LoadingAnimation1 size={22} /> Processing...
+                </>
+            ) : (
+                'Subcribe'
+            )}
+        </Button>
     );
 }
 

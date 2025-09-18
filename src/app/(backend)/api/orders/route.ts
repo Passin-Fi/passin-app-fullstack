@@ -28,8 +28,8 @@ export async function POST(request: Request) {
         try {
             response = await postCreateOrderPayment({
                 currency: 'USD',
-                cancel_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=cancel`,
-                success_url: `${origin}/pools/${reqBody.id_pool}?reference_id=${reqBody.reference_id}&status=success`,
+                cancel_url: `${origin}/pools/${reqBody.id_pool}/subcribe/${reqBody.reference_id}?status=cancel`,
+                success_url: `${origin}/pools/${reqBody.id_pool}/subcribe/${reqBody.reference_id}?status=success`,
                 ...reqBody,
             });
         } catch (apiErr) {

@@ -16,11 +16,11 @@ export default function OrderList() {
     return (
         <div className="mt-6">
             {isLoading ? (
-                <div>
-                    <LoadingAnimation1 size={100} />
+                <div className="text-center">
+                    <LoadingAnimation1 size={80} className="mx-auto" />
                 </div>
             ) : (
-                <Accordion type="multiple" className="w-full">
+                <Accordion type="multiple" className="w-full max-w-2xl mx-auto">
                     {data?.map((order, index) => (
                         <OrderCard key={order.reference_id + index} data={order} value={`item-${index}`} />
                     ))}
