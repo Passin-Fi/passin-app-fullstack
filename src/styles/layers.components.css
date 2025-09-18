@@ -29,8 +29,8 @@
         pointer-events: none;
     }
 
-    .contained-card {
+    .card-custom1 {
         position: relative;
-        @apply rounded-card p-2.5 tablet:p-4 desktop:p-5 dark:bg-[#1E222D];
+        @apply rounded-card py-2.5 px-2.5 tablet:px-4 desktop:px-5 dark:bg-[#1E222D];
     }
 }

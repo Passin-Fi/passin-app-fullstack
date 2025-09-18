@@ -11,6 +11,7 @@ export type OrderLine = {
     price_tolerance_percent: number;
     unit_price: number;
     image_url?: string;
+    note?: string;
 };
 
 export type MetadataKV = {
@@ -52,8 +53,10 @@ export type CreateOrderPaymentResponse = {
 };
 
 /**
- * Create an order payment via the app's API proxy (recommended to avoid exposing API keys).
- * This calls the Next.js route at /api/orders which should forward to the external payment API.
+ * Create an order payment against the external payment API.
+ * Note: This function talks directly to the external endpoint (by default).
+ * If you need to call through the internal Next.js API route (to avoid exposing secrets to the client),
+ * call your own client-side helper that POSTs to "/api/orders" instead of using this function directly in the browser.
  */
 export async function postCreateOrderPayment(
     input: CreateOrderPaymentInput,
@@ -80,14 +83,26 @@ export async function postCreateOrderPayment(
         signal: opts?.signal,
     });
 
-    const data = await res.json();
-    // console.log('Response Data:', data);
+    // Try to parse JSON; if it fails (or body is empty), fall back to text for better error diagnostics
+    let data: any = null;
+    let rawBody: string | undefined;
+    try {
+        data = await res.json();
+    } catch (_jsonErr) {
+        try {
+            rawBody = await res.text();
+            data = rawBody ? { raw: rawBody } : null;
+        } catch (_textErr) {
+            // ignore
+        }
+    }
 
     if (!res.ok) {
         const error: Error & { status?: number; data?: any; url?: string } = new Error(`Create order payment failed (${res.status} ${res.statusText})`);
         error.status = res.status;
         error.data = data;
         error.url = endpoint;
+        console.error('Create order payment error details:', { status: error.status, data: error.data, url: error.url });
         throw error;
     }
 

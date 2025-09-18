@@ -13,7 +13,7 @@ export default function CardPoolInfoOverview({ dataPool }: { dataPool: TypePool 
         <CardCustom className="not-desktop:col-span-2 desktop:col-span-1">
             <div className="flex justify-between">
                 <div className="flex gap-2 place-items-center">
-                    <CryptoIcon name={dataPool.tokenDeposit} size={48} className="mobile:size-8 tablet:size-10 desktop:size-12" />
+                    <CryptoIcon name={dataPool.tokenDeposit.symbol} size={48} className="mobile:size-8 tablet:size-10 desktop:size-12" />
                     <div>
                         <h5>{dataPool.name}</h5>
                         <Link href={`/pools/${dataPool.id}`}>
