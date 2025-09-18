@@ -37,17 +37,6 @@ services:
                 condition: service_healthy
         ports:
             - '5555:3000'
-        environment:
-            NODE_ENV: production
-            # Use internal service hostname 'mongo' and container port 27017, not host published 28018
-            MONGODB_URI: mongodb://ezsol_app:${MONGO_APP_PASSWORD}@mongo:27017/ezsol?authSource=admin
-            MONGODB_DB_NAME: ezsol
-        # If you have a local .env with more vars you want to inject uncomment:
-        # env_file:
-        #   - .env
-        # Optionally mount source for live development (commented out for production):
-        # volumes:
-        #   - ./:/app
 
 volumes:
     mongo_data:
