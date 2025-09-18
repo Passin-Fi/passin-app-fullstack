@@ -23,18 +23,18 @@ pipeline {
         REPOSITORY_NAME = "frontend"
 
         // Staging server information
-        STAGING_VM_IP = "128.199.111.190"
+        STAGING_VM_IP = "174.138.24.54"
         STAGING_URL = "https://ezsol.a-star.group"
         STAGING_DOCKER_PORT = 3000
         STAGING_DOCKER_BIND_PORT = 5555
-        STAGING_ENV_CREDENTIALS_ID = 'env-staging-tcv-landingpage'
+        STAGING_ENV_CREDENTIALS_ID = 'ezsol-frontend-env-staging'
 
         // Production server information
         PRODUCTION_VM_IP = "128.199.111.190"
         PRODUCTION_URL = "https://a-star.group"
         PRODUCTION_DOCKER_PORT = 3000
         PRODUCTION_DOCKER_BIND_PORT = 5432
-        PRODUCTION_ENV_CREDENTIALS_ID = 'env-production-tcv-landingpage'
+        PRODUCTION_ENV_CREDENTIALS_ID = 'ezsol-frontend-env-staging'
 
         // Configuation
         DEPLOY_PRODUCTION_MODE = "auto"
