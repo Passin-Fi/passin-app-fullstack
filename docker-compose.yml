@@ -8,8 +8,7 @@ services:
         environment:
             # Root user for Mongo; required for the init process
             MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: rootpassword
-            # App DB name to create
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD} # App DB name to create
             MONGO_INITDB_DATABASE: ezsol
             # App-level user (created by init script)
             MONGO_APP_USER: ezsol_app
@@ -21,11 +20,11 @@ services:
             - mongo_data:/data/db
             - mongo_config:/data/configdb
         healthcheck:
-            test: ['CMD', 'mongosh', '--username', 'root', '--password', 'rootpassword', '--eval', "db.adminCommand('ping')"]
-            interval: 60s
+            test: ['CMD', 'mongosh', '--username', 'root', '--password', '${MONGO_INITDB_ROOT_PASSWORD}', '--eval', "db.adminCommand('ping')"]
+            interval: 30s
             timeout: 5s
             retries: 5
-            start_period: 10s
+            start_period: 0s
 
     app:
         build:
@@ -36,14 +35,8 @@ services:
         depends_on:
             mongo:
                 condition: service_healthy
-        environment:
-            NODE_ENV: production
-            # Construct Mongo URI using the same password variable
-            MONGODB_URI: mongodb://ezsol_app:${MONGO_APP_PASSWORD}@mongo:28018/ezsol?authSource=admin
-            MONGODB_DB_NAME: ezsol
-            PORT: 3000
         ports:
-            - '3000:3000'
+            - '5555:3000'
         # If you have a local .env with more vars you want to inject uncomment:
         # env_file:
         #   - .env
