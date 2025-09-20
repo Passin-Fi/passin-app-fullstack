@@ -9,7 +9,7 @@ export async function createSmartWalletAndSendToken(
     tokenMint: PublicKey,
     amount: number,
     smartWalletOfPasskeys?: string
-): Promise<{ walletAddress: string; isCreated: boolean }> {
+): Promise<{ walletAddress: string; isCreated: boolean; signature: string }> {
     try {
         if (process.env.WALLET_BE == undefined) {
             throw new Error('Backend wallet not configured');
@@ -59,7 +59,7 @@ export async function createSmartWalletAndSendToken(
         if (!check) {
             throw new Error('Transaction failed on chain!');
         }
-        return { walletAddress: smartWallet.toString(), isCreated: true };
+        return { walletAddress: smartWallet.toString(), isCreated: true, signature: signature as string };
     } catch (error) {
         console.error('Create smart wallet error:', error);
         throw error;

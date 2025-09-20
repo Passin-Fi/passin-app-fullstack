@@ -29,7 +29,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             currentStatus === OrderStatus.CreateAndSendTokenSuccess ||
             currentStatus === OrderStatus.CreateAndSendTokenFail ||
             currentStatus === OrderStatus.TokenSendSuccess ||
-            currentStatus === OrderStatus.TokenSendFail
+            currentStatus === OrderStatus.TokenSendFail ||
+            currentStatus === OrderStatus.SubcribeToPoolSuccess
         ) {
             return NextResponse.json(existingOrder);
         }
@@ -168,6 +169,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                             {
                                 $set: {
                                     'payment.shipping.smart_wallet_address': createWallet.walletAddress,
+                                    send_token_tx_hash: createWallet.signature,
                                     status: currentStatus,
                                     updated_at: new Date(),
                                 },

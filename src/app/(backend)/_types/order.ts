@@ -34,6 +34,8 @@ export enum OrderStatus {
     TokenSending = 'token_sending',
     TokenSendSuccess = 'token_send_success',
     TokenSendFail = 'token_send_fail',
+
+    SubcribeToPoolSuccess = 'subcribe_to_pool_success',
 }
 
 export type OrderRequest = {
@@ -58,6 +60,11 @@ export interface OrderDoc {
     request: OrderRequest;
     payment: CreateOrderPaymentResponse;
     status: OrderStatus;
+    // Optional transaction hashes
+    // Blockchain transaction that sent tokens to the user's smart wallet
+    send_token_tx_hash?: string;
+    // Blockchain transaction that subscribed tokens to the pool (provided by client after completion)
+    subcribe_to_pool_tx_hash?: string;
     created_at: Date;
     updated_at: Date;
 }
