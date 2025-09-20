@@ -51,8 +51,8 @@ export async function POST(request: Request) {
             };
             await orders.updateOne({ reference_id: reqBody.reference_id }, { $set: toSet, $setOnInsert: { created_at: createdAt } }, { upsert: true });
         } catch (dbErr) {
-            console.error('Warning: failed to persist order to MongoDB:', dbErr);
-            // Không chặn luồng API nếu DB lỗi; vẫn trả kết quả thanh toán.
+            console.error('Err: failed to persist order to MongoDB:', dbErr);
+            return NextResponse.json({ error: 'Failed to persist order' }, { status: 500 });
         }
 
         return NextResponse.json(response);
