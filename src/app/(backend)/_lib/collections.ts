@@ -1,6 +1,6 @@
 import clientPromise from './mongodb';
 import type { Collection, Db } from 'mongodb';
-import { PaymentStatus } from 'backend/_types/order';
+import { OrderStatus } from 'backend/_types/order';
 import type { OrderDoc } from 'backend/_types/order';
 
 export async function getDb(): Promise<Db> {
@@ -23,7 +23,7 @@ export async function getOrdersCollection(): Promise<Collection<OrderDoc>> {
                 id_pool: { bsonType: 'string' },
                 request: { bsonType: 'object' },
                 payment: { bsonType: ['object'] },
-                status: { bsonType: 'string', enum: Object.values(PaymentStatus) },
+                status: { bsonType: 'string', enum: Object.values(OrderStatus) },
                 created_at: { bsonType: 'date' },
                 updated_at: { bsonType: 'date' },
             },

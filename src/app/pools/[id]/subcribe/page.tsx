@@ -22,6 +22,7 @@ import { convertArrayNumberToBase64, convertBase64ToArrayNumber } from 'src/util
 import { toast } from 'react-toastify';
 import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 import useFetchOrders from 'src/views/orders/useFetchOrders';
+import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -133,6 +134,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             toast.success('Order created! Redirecting to payment...');
             console.log('Response data:', data);
             refetch();
+            window.location.href = data.pay_now_url;
         } catch (error) {
             console.error('Error subcribe:', error);
             toast.error('Error subcribe!' + (error instanceof Error ? ` ${error.message}` : ''));
@@ -235,8 +237,9 @@ function TestGetPaymentStatus() {
 
     async function getStatus() {
         try {
-            const res = await fetch(`/api/orders/${paymentId}/capture`, { method: 'GET' });
-            const data = await res.json();
+            // const res = await fetch(`/api/orders/${paymentId}/capture`, { method: 'GET' });
+            // const data = await res.json();
+            const data = await getPaymentStatus(paymentId);
             console.log('Raw response data:', data);
         } catch (error) {
             console.error('Error get payment status:', error);

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getOrdersCollection } from 'backend/_lib/collections';
-import { PaymentStatus, type OrderDoc } from 'backend/_types/order';
+import { OrderStatus, type OrderDoc } from 'backend/_types/order';
 import { CreateOrderPaymentInput, CreateOrderPaymentResponse, MetadataKV, OrderLine, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
 
 // CreateOrder API (POST)
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
                 id_pool: reqBody.id_pool,
                 request: reqBody,
                 payment: response,
-                status: PaymentStatus.Pending,
+                status: OrderStatus.PaymentPending,
                 updated_at: new Date(),
             };
             await orders.updateOne({ reference_id: reqBody.reference_id }, { $set: toSet, $setOnInsert: { created_at: createdAt } }, { upsert: true });

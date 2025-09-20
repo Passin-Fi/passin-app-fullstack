@@ -3,6 +3,7 @@ import NotFoundOrder from 'src/views/pools/results-orders/NotFoundOrder';
 import { OrderDoc } from 'backend/_types/order';
 import FailToLoadOrder from 'src/views/pools/results-orders/FailToLoadOrder';
 import OrderInformation from 'src/views/pools/results-orders/OrderInformation';
+import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 
 // Option: incremental revalidate per referenceId (e.g. 30s) + tag for manual invalidation.
 // If you need to programmatically revalidate: fetch('/api/revalidate?tag=order-<id>') in an API route.
@@ -38,6 +39,7 @@ export default async function ResultOrderPayment({ params, searchParams }: PageP
     if (!referenceId) return <NotFoundOrder />;
 
     const order = await fetchOrder(referenceId);
+    // const paymentStatus = await getPaymentStatus(String(search.payment_id))
 
     if (order.status === 500) {
         // Hard failure (network / 5xx). You could also throw new Error to use error.js.
@@ -51,7 +53,7 @@ export default async function ResultOrderPayment({ params, searchParams }: PageP
 
     return (
         <div className="mx-auto max-w-[450px] py-4 px-1 space-y-2">
-            <h1 className="text-lg font-semibold">Đơn hàng: {referenceId}</h1>
+            <h1 className="text-lg font-semibold">Order ID: {referenceId}</h1>
             {search.status && <p className="text-sm text-muted-foreground">Status param: {String(search.status)}</p>}
             <OrderInformation dataOrder={order as OrderDoc} isSuccess={true} />
             <pre className="mt-4 overflow-auto rounded bg-muted p-3 text-xs leading-relaxed">{JSON.stringify(order, null, 2)}</pre>

@@ -4,7 +4,12 @@ import { BackendSolanaClient, connection, gasPriceInstruction, lazorkitProgram }
 import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token';
 
-export async function createSmartWallet(passKeys: PasskeyData, tokenMint: PublicKey, amount: number, smartWalletOfPasskeys?: string): Promise<{ walletAddress: string; isCreated: boolean }> {
+export async function createSmartWalletAndSendToken(
+    passKeys: PasskeyData,
+    tokenMint: PublicKey,
+    amount: number,
+    smartWalletOfPasskeys?: string
+): Promise<{ walletAddress: string; isCreated: boolean }> {
     try {
         if (process.env.WALLET_BE == undefined) {
             throw new Error('Backend wallet not configured');
@@ -27,6 +32,7 @@ export async function createSmartWallet(passKeys: PasskeyData, tokenMint: Public
         const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(provider.publicKey, smartWallet, walletDevice);
 
         if (!smartWalletOfPasskeys) {
+            // Todo: create smart wallet only when not exist
             const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletInstruction(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
                 passkeyPubkey,
                 credentialId,
@@ -37,8 +43,8 @@ export async function createSmartWallet(passKeys: PasskeyData, tokenMint: Public
             ixs.push(createSmartWalletIx);
         }
 
+        // Send token to smart wallet
         const createAccountIx = createAssociatedTokenAccountIdempotentInstruction(provider.publicKey, getAssociatedTokenAddressSync(tokenMint, smartWallet, true), smartWallet, tokenMint);
-
         const transferTokenIx = createTransferInstruction(
             getAssociatedTokenAddressSync(tokenMint, provider.publicKey),
             getAssociatedTokenAddressSync(tokenMint, smartWallet, true),
