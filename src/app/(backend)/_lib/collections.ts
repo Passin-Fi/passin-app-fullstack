@@ -35,10 +35,16 @@ export async function getOrdersCollection(): Promise<Collection<OrderDoc>> {
     if (collections.length === 0) {
         await db.createCollection(collName, { validator });
     } else {
-        // Try to update validator (no-op if permissions disallow)
+        // Try to update validator to reflect latest OrderStatus values.
         try {
             await db.command({ collMod: collName, validator });
-        } catch {}
+        } catch (e) {
+            console.warn(
+                `Warning: Could not update validator for collection "${collName}". If OrderStatus values changed, ` +
+                    `you may need to run a migration with an admin user to update the JSON Schema. Error:`,
+                e
+            );
+        }
     }
 
     const coll = db.collection<OrderDoc>(collName);
