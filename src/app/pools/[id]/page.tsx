@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { ChevronLeft } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import CardInfomation from '../../../views/pools/card-infomation/card-infomation';
 import CardIntroduce from '../../../views/pools/card-introduce/CardIntroduce';

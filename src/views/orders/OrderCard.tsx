@@ -19,8 +19,12 @@ export default function OrderCard({ data, value }: { data: OrderDoc; value: stri
                             {data.status}
                         </Badge>
                     </div>
+                    <div className="text-center">
+                        <p className="muted">Pool</p>
+                        <p className="lead">{dataPayment.order_lines.supplier}</p>
+                    </div>
                     <div className="text-right">
-                        <p className="muted">{dataPayment.order_lines.supplier}</p>
+                        <p className="muted">Amount</p>
                         <p className="lead">
                             {dataPayment.order_lines.quantity} {mapAddressToTokenInfo[dataPayment.order_lines.key]?.symbol || ''}
                         </p>

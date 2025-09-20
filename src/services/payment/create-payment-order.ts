@@ -32,24 +32,24 @@ export type CreateOrderPaymentInput = {
     cancel_url: string;
     metadata?: MetadataKV[];
 };
-
+export type PaymentStatusType = 'OPEN' | 'PAID' | 'CANCELLED' | 'EXPIRED' | 'FAILED';
 export type CreateOrderPaymentResponse = {
     id: string;
     payment_token: string;
     shipping: {
         smart_wallet_address?: string;
-        passkey?: {
+        passkey: {
             public_key: string;
             credential_id: string;
         };
     };
-    status: string;
-    view_order_url?: string;
-    pay_now_url?: string;
-    success_url?: string;
-    cancel_url?: string;
+    status: PaymentStatusType;
+    view_order_url: string;
+    pay_now_url: string;
+    success_url: string;
+    cancel_url: string;
     order_lines: OrderLine;
-    created_at?: string;
+    created_at: string;
 };
 
 /**
@@ -118,10 +118,10 @@ export async function postCreateOrderPayment(
                 credential_id: data.shipping.zip,
             },
         },
-        view_order_url: data.links?.[0]?.href,
-        pay_now_url: data.links?.[1]?.href,
-        success_url: data.links?.[2]?.href,
-        cancel_url: data.links?.[3]?.href,
+        view_order_url: data.links?.[0]?.href || '#',
+        pay_now_url: data.links?.[1]?.href || '#',
+        success_url: data.links?.[2]?.href || '#',
+        cancel_url: data.links?.[3]?.href || '#',
         created_at: data.created,
     } as CreateOrderPaymentResponse;
 }
