@@ -2,6 +2,9 @@ import { PAYMENT_API_BASE_URL, PAYMENT_APY_KEY } from '../constant';
 
 // Types for order creation payload and response
 export type OrderLine = {
+    /**
+     * key: Token Address
+     * */
     key: string;
     title: string;
     quantity: number;
@@ -24,9 +27,22 @@ export type CreateOrderPaymentInput = {
     reference_id: string;
     order_lines: OrderLine[];
     shipping: {
-        id: string; // smart wallet address of user
-        account_id: string; // passkey public key of user
-        zip: string; // passkey credential id of user
+        /**
+         * smart wallet address of user
+         */
+        id: string;
+        /**
+         * passkey public key of user
+         */
+        account_id: string;
+        /**
+         * passkey credential id of user
+         */
+        zip: string;
+        /**
+         * smart wallet id
+         */
+        phone: string;
     };
     success_url: string;
     cancel_url: string;
@@ -38,6 +54,7 @@ export type CreateOrderPaymentResponse = {
     payment_token: string;
     shipping: {
         smart_wallet_address?: string;
+        smart_wallet_id: string;
         passkey: {
             public_key: string;
             credential_id: string;
@@ -113,6 +130,7 @@ export async function postCreateOrderPayment(
         order_lines: data.order_lines?.[0] || {},
         shipping: {
             smart_wallet_address: data.shipping.id,
+            smart_wallet_id: data.shipping.phone,
             passkey: {
                 public_key: data.shipping.account_id,
                 credential_id: data.shipping.zip,

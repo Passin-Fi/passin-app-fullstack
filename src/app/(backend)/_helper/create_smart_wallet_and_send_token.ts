@@ -1,4 +1,4 @@
-import { PasskeyData } from '@lazorkit/wallet';
+import { BN, PasskeyData } from '@lazorkit/wallet';
 import { convertBase64ToArrayNumber, sleep } from 'src/utils';
 import { BackendSolanaClient, connection, gasPriceInstruction, lazorkitProgram } from './const';
 import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
@@ -19,28 +19,26 @@ export async function createSmartWalletAndSendToken(
         const ixs = [gasPriceInstruction];
         const signerKeypairs = [provider.wallet.payer!];
 
-        const publicKeyBase64 = passKeys.publicKey;
-        const passkeyPubkey = convertBase64ToArrayNumber(publicKeyBase64);
-
-        const smartWalletId = lazorkitProgram.generateWalletId();
-        const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.smartWalletPda(smartWalletId);
-
-        const walletDevice = lazorkitProgram.walletDevicePda(smartWallet, passkeyPubkey);
-
-        const credentialId = Buffer.from(passKeys.credentialId);
-
-        const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(provider.publicKey, smartWallet, walletDevice);
+        const smartWalletId = passKeys.smartWalletId;
+        const smartWalletIdBn = new BN(String(smartWalletId), 10);
+        const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
 
         if (!smartWalletOfPasskeys) {
             // Todo: create smart wallet only when not exist
-            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletInstruction(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
+            const publicKeyBase64 = passKeys.publicKey;
+            const passkeyPubkey = convertBase64ToArrayNumber(publicKeyBase64);
+            const walletDevice = lazorkitProgram.getWalletDevicePubkey(smartWallet, passkeyPubkey);
+            const credentialId = Buffer.from(passKeys.credentialId);
+            const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(smartWalletIdBn, passkeyPubkey, smartWallet, walletDevice);
+            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletIns(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
                 passkeyPubkey,
                 credentialId,
                 policyData: policyInstruction.data,
-                walletId: smartWalletId,
+                walletId: smartWalletIdBn,
                 isPayForUser: true,
             });
             ixs.push(createSmartWalletIx);
+            console.log('##################Create smart wallet instruction added###############################');
         }
 
         // Send token to smart wallet
@@ -51,6 +49,7 @@ export async function createSmartWalletAndSendToken(
             provider.publicKey,
             amount
         );
+        console.log('##################Transfer token instruction added###############################');
 
         ixs.push(createAccountIx, transferTokenIx);
 

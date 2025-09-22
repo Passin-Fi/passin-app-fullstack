@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/default_policy.json`.
  */
 export type DefaultPolicy = {
-  address: 'CNT2aEgxucQjmt5SRsA6hSGrt241Bvc9zsgPvSuMjQTE';
+  address: '7Zu8pnhB5cUpDx98TvbC9RafgkD8qoqMRa1sfLu6B381';
   metadata: {
     name: 'defaultPolicy';
     version: '0.1.0';
@@ -18,7 +18,7 @@ export type DefaultPolicy = {
       discriminator: [21, 27, 66, 42, 18, 30, 14, 18];
       accounts: [
         {
-          name: 'payer';
+          name: 'smartWallet';
           writable: true;
           signer: true;
         },
@@ -63,7 +63,7 @@ export type DefaultPolicy = {
         },
         {
           name: 'lazorkit';
-          address: 'J6Big9w1VNeRZgDWH5qmNz2Nd6XFq5QeZbqC8caqSE5W';
+          address: 'G5SuNc9zcsxi2ANAy13XweXaczWxq2vzJCFz3pmVEqNJ';
         },
         {
           name: 'systemProgram';
@@ -88,23 +88,31 @@ export type DefaultPolicy = {
           writable: true;
         }
       ];
-      args: [];
+      args: [
+        {
+          name: 'walletId';
+          type: 'u64';
+        },
+        {
+          name: 'passkeyPublicKey';
+          type: {
+            array: ['u8', 33];
+          };
+        }
+      ];
     },
     {
       name: 'initPolicy';
       discriminator: [45, 234, 110, 100, 209, 146, 191, 86];
       accounts: [
         {
-          name: 'payer';
+          name: 'smartWallet';
           writable: true;
           signer: true;
         },
         {
-          name: 'smartWallet';
-        },
-        {
           name: 'walletDevice';
-          signer: true;
+          writable: true;
         },
         {
           name: 'policy';
@@ -124,14 +132,25 @@ export type DefaultPolicy = {
         },
         {
           name: 'lazorkit';
-          address: 'J6Big9w1VNeRZgDWH5qmNz2Nd6XFq5QeZbqC8caqSE5W';
+          address: 'G5SuNc9zcsxi2ANAy13XweXaczWxq2vzJCFz3pmVEqNJ';
         },
         {
           name: 'systemProgram';
           address: '11111111111111111111111111111111';
         }
       ];
-      args: [];
+      args: [
+        {
+          name: 'walletId';
+          type: 'u64';
+        },
+        {
+          name: 'passkeyPublicKey';
+          type: {
+            array: ['u8', 33];
+          };
+        }
+      ];
     }
   ];
   accounts: [
@@ -176,33 +195,37 @@ export type DefaultPolicy = {
     {
       name: 'walletDevice';
       docs: [
-        'Account that stores a wallet_device (passkey) used to authenticate to a smart wallet'
+        'Account that stores a wallet device (passkey) for smart wallet authentication',
+        '',
+        'Each wallet device represents a WebAuthn passkey that can be used to authenticate',
+        'transactions for a specific smart wallet. Multiple devices can be associated with',
+        'a single smart wallet for enhanced security and convenience.'
       ];
       type: {
         kind: 'struct';
         fields: [
           {
-            name: 'passkeyPubkey';
+            name: 'passkeyPublicKey';
             docs: [
-              'The public key of the passkey for this wallet_device that can authorize transactions'
+              'Public key of the WebAuthn passkey for transaction authorization'
             ];
             type: {
               array: ['u8', 33];
             };
           },
           {
-            name: 'smartWallet';
-            docs: ['The smart wallet this wallet_device belongs to'];
+            name: 'smartWalletAddress';
+            docs: ['Smart wallet address this device is associated with'];
             type: 'pubkey';
           },
           {
             name: 'credentialId';
-            docs: ['The credential ID this wallet_device belongs to'];
+            docs: ['Unique credential ID from WebAuthn registration'];
             type: 'bytes';
           },
           {
             name: 'bump';
-            docs: ['Bump seed for PDA derivation'];
+            docs: ['Bump seed for PDA derivation and verification'];
             type: 'u8';
           }
         ];

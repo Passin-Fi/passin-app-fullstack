@@ -151,6 +151,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                                 credentialId: paymenData.shipping.passkey!.credential_id,
                                 publicKey: paymenData.shipping.passkey!.public_key,
                                 isCreated: true,
+                                smartWallet: paymenData.shipping.smart_wallet_address || '',
+                                smartWalletId: paymenData.shipping.smart_wallet_id,
                             },
                             new PublicKey(paymenData.order_lines.key),
                             // paymenData.order_lines.quantity

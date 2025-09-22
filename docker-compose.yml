@@ -15,7 +15,7 @@ services:
             # Read from .env (not committed); define MONGO_APP_PASSWORD there
             MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
         ports:
-            - '28018:27017'
+            - '${MONGO_MOUNT_PORT}:27017'
         volumes:
             - mongo_data:/data/db
             - mongo_config:/data/configdb

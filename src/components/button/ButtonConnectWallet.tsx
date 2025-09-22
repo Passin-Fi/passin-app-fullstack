@@ -10,14 +10,29 @@ import { convertArrayNumberToBase64 } from 'src/utils';
 import { formatAddress } from 'src/utils/format';
 
 export default function ButtonConnectWallet() {
-    const { createPasskeyOnly, isConnecting, isLoading, smartWalletPubkey, wallet, buildSmartWalletTransaction, createSmartWalletOnly, connect, disconnect } = useWallet();
+    const {
+        connectPasskey,
+        isConnecting,
+        isLoading,
+        smartWalletPubkey,
+        wallet,
+        isConnected,
+        signAndSendTransaction,
+        getSmartWalletStatus,
+        isSmartWalletReady,
+        createSmartWallet,
+        buildSmartWalletTransaction,
+        connect,
+        disconnect,
+    } = useWallet();
     const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
     const router = useRouter();
 
     async function getPasskeysSelect() {
         try {
-            const data = await createPasskeyOnly();
-            console.log('data', data);
+            const data = await connectPasskey();
+
+            console.log('data', { data, wallet, smartWalletPubkey });
             setPasskeyConnected(data);
         } catch (error) {
             console.error('Error creating passkey-only wallet:', error);
@@ -32,6 +47,8 @@ export default function ButtonConnectWallet() {
                 credentialId: data.credentialId,
                 publicKey: convertArrayNumberToBase64(data.passkeyPubkey),
                 isCreated: true,
+                smartWallet: data.smartWallet,
+                smartWalletId: data.walletDevice,
             });
         } catch (error) {
             console.error('Error creating smart wallet:', error);

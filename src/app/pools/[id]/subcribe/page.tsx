@@ -23,6 +23,7 @@ import { toast } from 'react-toastify';
 import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 import useFetchOrders from 'src/views/orders/useFetchOrders';
 import { getPaymentStatus } from 'src/services/payment/get-payment-status';
+import { CreateOrderPaymentInput, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -44,7 +45,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
     const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
     const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
-    const { createPasskeyOnly, smartWalletPubkey, wallet } = useWallet();
+    const { smartWalletPubkey, wallet } = useWallet();
     const { refetch } = useFetchOrders(passkeyConnected?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
 
     function handleChangeAmountToken(value: string) {
@@ -84,6 +85,8 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     publicKey: wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : '',
                     credentialId: wallet ? wallet.credentialId : '',
                     isCreated: true,
+                    smartWallet: wallet ? wallet.smartWallet : '',
+                    smartWalletId: '',
                 };
             } else {
                 passkey = passkeyConnected;
@@ -118,7 +121,12 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                         note: dataPools[idPool].tokenDeposit.prettyName,
                     },
                 ],
-                shipping: { id: smartWallet, account_id: passkey!.publicKey, zip: passkey!.credentialId },
+                shipping: {
+                    id: smartWallet,
+                    account_id: passkey!.publicKey,
+                    zip: passkey!.credentialId,
+                    phone: passkey!.smartWalletId,
+                },
             } as OrderPaymentInput;
 
             console.log('Request body data:', bodyData);
@@ -231,10 +239,25 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
 }
 
 function TestGetPaymentStatus() {
-    const { smartWalletPubkey, connect } = useWallet();
+    const {
+        smartWalletPubkey,
+        connect,
+        connectPasskey,
+        isConnected,
+        isSmartWalletReady,
+        createSmartWallet,
+        checkSmartWalletByCredentialId,
+        getSmartWalletByPasskey,
+        getCurrentSmartWallet,
+        getSmartWalletStatus,
+        wallet,
+    } = useWallet();
     const [paymentId, setPaymentId] = React.useState<string>('');
     const passkeyConnectedValue = usePasskeyConnectedValue();
 
+    function logs() {
+        console.log({ smartWalletPubkey, isConnected, wallet });
+    }
     async function getStatus() {
         try {
             // const res = await fetch(`/api/orders/${paymentId}/capture`, { method: 'GET' });
@@ -243,6 +266,33 @@ function TestGetPaymentStatus() {
             console.log('Raw response data:', data);
         } catch (error) {
             console.error('Error get payment status:', error);
+        }
+    }
+
+    async function connectPassk() {
+        try {
+            const data = await connectPasskey();
+            console.log('data', data);
+        } catch (error) {
+            console.error('Error connect passkey:', error);
+        }
+    }
+
+    async function testSmartWalletStatus() {
+        try {
+            const status = await getSmartWalletStatus();
+            console.log('Smart wallet status:', status);
+        } catch (error) {
+            console.error('Error get smart wallet status:', error);
+        }
+    }
+
+    async function checkIsSmartWalletReady() {
+        try {
+            const isReady = await isSmartWalletReady();
+            console.log('Is smart wallet ready:', isReady);
+        } catch (error) {
+            console.error('Error check is smart wallet ready:', error);
         }
     }
 
@@ -258,6 +308,18 @@ function TestGetPaymentStatus() {
         }
     }
 
+    async function testGetCurrentSmartWallet() {
+        try {
+            const response = await getCurrentSmartWallet();
+            console.log('Current smart wallet:', {
+                smartWallet: response.smartWallet?.toString(),
+                walletDevice: response.walletDevice?.toString(),
+            });
+        } catch (error) {
+            console.error('Error get current smart wallet:', error);
+        }
+    }
+
     async function testConnect() {
         try {
             const res = await connect();
@@ -268,14 +330,80 @@ function TestGetPaymentStatus() {
         }
     }
 
+    async function createPaymentTest() {
+        try {
+            const bodyData = {
+                id_pool: 'testpool0001',
+                reference_id: Date.now() + '-testpool0001',
+                order_lines: [
+                    {
+                        key: 'So11111111111111111111111111111111111111112',
+                        title: 'Test payment',
+                        quantity: 100,
+                        unit_price: 1,
+                        min_receive_quantity: 95,
+                        price_tolerance_percent: 5,
+                        supplier: 'Test supplier',
+                        supplier_id: 'testsupplier0001',
+                        image_url: 'https://cryptologos.cc/logos/solana-sol-logo.png',
+                        note: 'Test note',
+                    },
+                ],
+                shipping: {
+                    id: 'YourSmartWalletAddress',
+                    account_id: 'YourPasskeyPublicKey',
+                    zip: 'YourPasskeyCredentialId',
+                    phone: 'YourSmartWalletId',
+                },
+                cancel_url: 'https://yourdomain.com/cancel',
+                success_url: 'https://yourdomain.com/success',
+                metadata: [{ key: 'test_key', value: 'test_value' }],
+                currency: 'USD',
+            } as CreateOrderPaymentInput;
+            const response = await postCreateOrderPayment(bodyData);
+            console.log('Create payment response data:', response);
+        } catch (error) {
+            console.error('Error create payment test:', error);
+        }
+    }
+
     return (
-        <div className="mt-4">
+        <div className="mt-6 border border-red-700">
             <Input placeholder="Payment ID" value={paymentId} onChange={(e) => setPaymentId(e.target.value)} />
             <Button onClick={getStatus}>Test get</Button>
+            <Button onClick={createPaymentTest}>Test create payment</Button>
 
             <div>
-                <p>Smart wallet: {smartWalletPubkey?.toString()}</p>
-                <Button onClick={testConnect}>Test connect wallet</Button>
+                <Button variant={'secondary'} onClick={logs}>
+                    Logs wallet
+                </Button>
+            </div>
+
+            <div className="mt-2">
+                <Button variant={'default'} onClick={connectPassk}>
+                    Connect passkey
+                </Button>
+            </div>
+
+            <div className="mt-2">
+                <Button variant={'default'} onClick={testSmartWalletStatus}>
+                    Test smart wallet status
+                </Button>
+            </div>
+            <div className="mt-2">
+                <Button variant={'default'} onClick={checkIsSmartWalletReady}>
+                    Check isSmartWalletReady
+                </Button>
+            </div>
+            <div className="mt-2">
+                <Button variant={'default'} onClick={testGetCurrentSmartWallet}>
+                    Get current smart wallet
+                </Button>
+            </div>
+            <div>
+                <p>Smart wallet: {smartWalletPubkey?.toString() || 'null'}</p>
+                <p>Passkey connected: {passkeyConnectedValue?.publicKey || 'null'}</p>
+                <Button onClick={testConnect}>Test connect wallet (have create smartwallet)</Button>
             </div>
 
             <div>

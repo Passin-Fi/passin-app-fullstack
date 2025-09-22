@@ -24,6 +24,7 @@ export async function getPaymentStatus(paymentId: string): Promise<CreateOrderPa
         order_lines: data.order_lines?.[0] || {},
         shipping: {
             smart_wallet_address: data.shipping.id,
+            smart_wallet_id: data.shipping.phone,
             passkey: {
                 public_key: data.shipping.account_id,
                 credential_id: data.shipping.zip,
