@@ -16,6 +16,8 @@ try {
     pwd: appPass,
     roles: [
       { role: 'readWrite', db: dbName },
+      { role: 'dbAdmin', db: dbName },
+      { role: 'dbOwner', db: dbName }, // Needed for some mongoose operations
     ],
   });
   print(`Created app user "${appUser}" for db "${dbName}"`);

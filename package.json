@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "devssl": "npx local-ssl-proxy --source 3001 --target 3000 --cert ./certs/localhost+1.pem --key ./localhost+1-key.pem",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
-    "@lazorkit/wallet": "^1.5.5",
+    "@lazorkit/wallet": "^1.6.3",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

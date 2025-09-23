@@ -1,15 +1,16 @@
 import { PasskeyData } from '@lazorkit/wallet';
 import { convertBase64ToArrayNumber, sleep } from 'src/utils';
 import { BackendSolanaClient, connection, gasPriceInstruction, lazorkitProgram } from './const';
-import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { BN } from '@coral-xyz/anchor';
 
 export async function createSmartWalletAndSendToken(
     passKeys: PasskeyData,
     tokenMint: PublicKey,
     amount: number,
     smartWalletOfPasskeys?: string
-): Promise<{ walletAddress: string; isCreated: boolean }> {
+): Promise<{ walletAddress: string; isCreated: boolean; signature: string }> {
     try {
         if (process.env.WALLET_BE == undefined) {
             throw new Error('Backend wallet not configured');
@@ -19,28 +20,31 @@ export async function createSmartWalletAndSendToken(
         const ixs = [gasPriceInstruction];
         const signerKeypairs = [provider.wallet.payer!];
 
-        const publicKeyBase64 = passKeys.publicKey;
-        const passkeyPubkey = convertBase64ToArrayNumber(publicKeyBase64);
-
-        const smartWalletId = lazorkitProgram.generateWalletId();
-        const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.smartWalletPda(smartWalletId);
-
-        const walletDevice = lazorkitProgram.walletDevicePda(smartWallet, passkeyPubkey);
-
-        const credentialId = Buffer.from(passKeys.credentialId);
-
-        const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(provider.publicKey, smartWallet, walletDevice);
+        // const smartWalletIdBn = lazorkitProgram.generateWalletId();
+        // const smartWallet = lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
+        const smartWalletIdBn: BN = new BN(passKeys.smartWalletId);
+        const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
 
         if (!smartWalletOfPasskeys) {
             // Todo: create smart wallet only when not exist
-            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletInstruction(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
-                passkeyPubkey,
+            const publicKeyBase64 = passKeys.publicKey;
+            const passkeyPubkey = convertBase64ToArrayNumber(publicKeyBase64);
+            const walletDevice = lazorkitProgram.getWalletDevicePubkey(smartWallet, passkeyPubkey);
+            const credentialId = Buffer.from(passKeys.credentialId);
+            const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(smartWalletIdBn, passkeyPubkey, smartWallet, walletDevice);
+            const args = {
+                passkeyPublicKey: passkeyPubkey,
                 credentialId,
                 policyData: policyInstruction.data,
-                walletId: smartWalletId,
-                isPayForUser: true,
-            });
+                walletId: smartWalletIdBn,
+                amount: new BN(0.001392 * LAMPORTS_PER_SOL),
+                referralAddress: null,
+                vaultIndex: null,
+            };
+
+            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletIns(provider.publicKey, smartWallet, walletDevice, policyInstruction, args);
             ixs.push(createSmartWalletIx);
+            console.log('##################Create smart wallet instruction added###############################');
         }
 
         // Send token to smart wallet
@@ -51,15 +55,15 @@ export async function createSmartWalletAndSendToken(
             provider.publicKey,
             amount
         );
+        console.log('##################Transfer token instruction added###############################');
 
         ixs.push(createAccountIx, transferTokenIx);
-
         const signature = await sendVersionedTransaction(ixs, signerKeypairs);
         const check = await checkTransactionStatus(signature as string);
         if (!check) {
             throw new Error('Transaction failed on chain!');
         }
-        return { walletAddress: smartWallet.toString(), isCreated: true };
+        return { walletAddress: smartWallet.toString(), isCreated: true, signature: signature as string };
     } catch (error) {
         console.error('Create smart wallet error:', error);
         throw error;

@@ -86,6 +86,7 @@ export default function OrderInformation({ dataOrder, isSuccess }: { dataOrder: 
                             break;
                         case OrderStatus.CreateAndSendTokenSuccess:
                             setStepData((prev) => ({ ...prev, currentStep: 2, isProcessDone: false }));
+                            return; // stop checking tam thoi
                             break;
                         case OrderStatus.CreateAndSendTokenFail:
                             setStepData((prev) => ({ ...prev, currentStep: 1, isProcessDone: true }));
