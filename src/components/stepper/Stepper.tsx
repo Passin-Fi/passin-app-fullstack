@@ -70,7 +70,7 @@ export default function Stepper({ currentStep = 0, steps, isProcessDone = false 
                             >
                                 {step.title}
                             </h4>
-                            {step.description && <p className="text-sm text-gray-500">{step.description}</p>}
+                            {step.description && <div className="text-sm text-gray-500">{step.description}</div>}
                         </div>
                     </div>
                 );

@@ -27,7 +27,7 @@ export const LoadingAnimation1 = React.forwardRef<SVGSVGElement, LoadingAnimatio
             aria-label="Loading"
             width={dimension}
             height={dimension}
-            className={`text-primary ${className}`.trim()}
+            className={`text-primary mx-auto ${className}`.trim()}
             preserveAspectRatio="xMidYMid"
             style={finalStyle}
             {...rest}

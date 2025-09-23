@@ -207,7 +207,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     <ButtonSubcribe onClick={subcribe} />
                 </div>
             </CardCustom>
-            <TestGetPaymentStatus />
+            {/* <TestGetPaymentStatus /> */}
         </div>
     );
 }
@@ -250,6 +250,10 @@ function TestGetPaymentStatus() {
         getSmartWalletByPasskey,
         getCurrentSmartWallet,
         getSmartWalletStatus,
+        buildDirectTransaction,
+        buildSmartWalletTransaction,
+        buildTransaction,
+        signAndSendTransaction,
         wallet,
     } = useWallet();
     const [paymentId, setPaymentId] = React.useState<string>('');
@@ -293,18 +297,6 @@ function TestGetPaymentStatus() {
             console.log('Is smart wallet ready:', isReady);
         } catch (error) {
             console.error('Error check is smart wallet ready:', error);
-        }
-    }
-
-    async function checkSmartWallet() {
-        try {
-            const response = await lazorkitProgram.getSmartWalletByPasskey(convertBase64ToArrayNumber('A+eWPD8zgy9caOL5NC8+1wItIJ2LRhcxThmfI2oG4Ass'));
-            console.log('Smart wallet status:', {
-                smartWallet: response.smartWallet?.toString(),
-                walletDevice: response.walletDevice?.toString(),
-            });
-        } catch (error) {
-            console.error('Error get smart wallet status:', error);
         }
     }
 
@@ -371,9 +363,11 @@ function TestGetPaymentStatus() {
         <div className="mt-6 border border-red-700">
             <Input placeholder="Payment ID" value={paymentId} onChange={(e) => setPaymentId(e.target.value)} />
             <Button onClick={getStatus}>Test get</Button>
-            <Button onClick={createPaymentTest}>Test create payment</Button>
+            <Button variant={'destructive'} onClick={createPaymentTest}>
+                Test create payment
+            </Button>
 
-            <div>
+            <div className="mt-2">
                 <Button variant={'secondary'} onClick={logs}>
                     Logs wallet
                 </Button>
@@ -381,35 +375,29 @@ function TestGetPaymentStatus() {
 
             <div className="mt-2">
                 <Button variant={'default'} onClick={connectPassk}>
-                    Connect passkey
+                    connectPasskey()
                 </Button>
             </div>
 
             <div className="mt-2">
                 <Button variant={'default'} onClick={testSmartWalletStatus}>
-                    Test smart wallet status
+                    getSmartWalletStatus()
                 </Button>
             </div>
             <div className="mt-2">
                 <Button variant={'default'} onClick={checkIsSmartWalletReady}>
-                    Check isSmartWalletReady
+                    isSmartWalletReady()
                 </Button>
             </div>
             <div className="mt-2">
                 <Button variant={'default'} onClick={testGetCurrentSmartWallet}>
-                    Get current smart wallet
+                    getCurrentSmartWallet()
                 </Button>
             </div>
             <div>
                 <p>Smart wallet: {smartWalletPubkey?.toString() || 'null'}</p>
                 <p>Passkey connected: {passkeyConnectedValue?.publicKey || 'null'}</p>
-                <Button onClick={testConnect}>Test connect wallet (have create smartwallet)</Button>
-            </div>
-
-            <div>
-                <Button variant={'destructive'} onClick={checkSmartWallet}>
-                    Check smart wallet
-                </Button>
+                <Button onClick={testConnect}>connect() - full flow smartwallet</Button>
             </div>
         </div>
     );

@@ -758,18 +758,11 @@ export class LazorkitClient {
                 break;
             }
             case types.SmartWalletAction.CreateChunk: {
-                const { policyInstruction: providedPolicyInstruction, cpiInstructions, expiresAt } = action.args as types.ArgsByAction[types.SmartWalletAction.CreateChunk];
+                const { policyInstruction, cpiInstructions, expiresAt } = action.args as types.ArgsByAction[types.SmartWalletAction.CreateChunk];
 
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
-
-                let policyInstruction: TransactionInstruction;
-                if (providedPolicyInstruction) {
-                    policyInstruction = providedPolicyInstruction;
-                } else {
-                    const smartWalletId = smartWalletConfig.walletId;
-                    policyInstruction = await this.defaultPolicyProgram.buildCheckPolicyIx(smartWalletId, passkeyPublicKey, this.getWalletDevicePubkey(smartWallet, passkeyPublicKey), smartWallet);
-                }
-
+                // if (!policyInstruction) throw new Error('Policy instruction is required for CreateChunk action');
+                // @ts-ignore
                 message = buildCreateChunkMessage(smartWallet, smartWalletConfig.lastNonce, new BN(Math.floor(Date.now() / 1000)), policyInstruction, cpiInstructions, new BN(expiresAt), [payer]);
                 break;
             }

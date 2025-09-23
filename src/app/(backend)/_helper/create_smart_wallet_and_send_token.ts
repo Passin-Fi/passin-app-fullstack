@@ -1,8 +1,9 @@
-import { BN, PasskeyData } from '@lazorkit/wallet';
+import { PasskeyData } from '@lazorkit/wallet';
 import { convertBase64ToArrayNumber, sleep } from 'src/utils';
 import { BackendSolanaClient, connection, gasPriceInstruction, lazorkitProgram } from './const';
-import { Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { BN } from '@coral-xyz/anchor';
 
 export async function createSmartWalletAndSendToken(
     passKeys: PasskeyData,
@@ -19,8 +20,9 @@ export async function createSmartWalletAndSendToken(
         const ixs = [gasPriceInstruction];
         const signerKeypairs = [provider.wallet.payer!];
 
-        const smartWalletId = passKeys.smartWalletId;
-        const smartWalletIdBn = new BN(String(smartWalletId), 10);
+        // const smartWalletIdBn = lazorkitProgram.generateWalletId();
+        // const smartWallet = lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
+        const smartWalletIdBn: BN = new BN(passKeys.smartWalletId);
         const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
 
         if (!smartWalletOfPasskeys) {
@@ -30,13 +32,17 @@ export async function createSmartWalletAndSendToken(
             const walletDevice = lazorkitProgram.getWalletDevicePubkey(smartWallet, passkeyPubkey);
             const credentialId = Buffer.from(passKeys.credentialId);
             const policyInstruction = await lazorkitProgram.defaultPolicyProgram.buildInitPolicyIx(smartWalletIdBn, passkeyPubkey, smartWallet, walletDevice);
-            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletIns(provider.publicKey, smartWallet, walletDevice, policyInstruction, {
-                passkeyPubkey,
+            const args = {
+                passkeyPublicKey: passkeyPubkey,
                 credentialId,
                 policyData: policyInstruction.data,
                 walletId: smartWalletIdBn,
-                isPayForUser: true,
-            });
+                amount: new BN(0.001392 * LAMPORTS_PER_SOL),
+                referralAddress: null,
+                vaultIndex: null,
+            };
+
+            const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletIns(provider.publicKey, smartWallet, walletDevice, policyInstruction, args);
             ixs.push(createSmartWalletIx);
             console.log('##################Create smart wallet instruction added###############################');
         }
@@ -52,7 +58,6 @@ export async function createSmartWalletAndSendToken(
         console.log('##################Transfer token instruction added###############################');
 
         ixs.push(createAccountIx, transferTokenIx);
-
         const signature = await sendVersionedTransaction(ixs, signerKeypairs);
         const check = await checkTransactionStatus(signature as string);
         if (!check) {
