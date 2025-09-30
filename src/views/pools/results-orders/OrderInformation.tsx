@@ -1,8 +1,11 @@
 'use client';
 
 import { useRouter } from '@bprogress/next/app';
+import { TransactionInstruction, useWallet } from '@lazorkit/wallet';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { OrderDoc, OrderStatus } from 'backend/_types/order';
 import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { Button } from 'shadcn/button';
 import { dataPools } from 'src/app/pools/data';
 import ErrorAnimationIcon from 'src/components/icons/ErrorAnimationIcon';
@@ -28,6 +31,50 @@ export default function OrderInformation({ dataOrder, isSuccess }: { dataOrder: 
     });
     const [checkOrderAgain, setCheckOrderAgain] = React.useState<OrderDoc | null>(null);
     const [isFetching, setIsFetching] = React.useState(false);
+    const { syncWalletStatus, wallet, signAndSendTransaction, connectPasskey, smartWalletPubkey } = useWallet();
+
+    useEffect(() => {
+        if (stepData.currentStep === 2 && stepData.isProcessDone === false) {
+            async function checkConditionSmartWallet() {
+                if (!wallet) {
+                    await connectPasskey();
+                    return false;
+                }
+                await syncWalletStatus();
+                await sleep(100);
+                console.log('syncWalletStatus done', { smartWalletPubkey });
+                return true;
+            }
+
+            async function subcribeToPool() {
+                if (!smartWalletPubkey) {
+                    return;
+                }
+                try {
+                    const ixs: TransactionInstruction[] = [];
+
+                    const transferIx = SystemProgram.transfer({
+                        fromPubkey: smartWalletPubkey,
+                        toPubkey: new PublicKey('H5s5m3LDeBawe1NTNcNPjrhKKgnpSDmDRZsiL6pXk3wQ'),
+                        lamports: 10_000_000,
+                    });
+                    ixs.push(transferIx);
+                    const tx = await signAndSendTransaction(ixs);
+                    console.log('signAndSendTransaction:', tx);
+                    const updatedb = await fetch(`/api/orders`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reference_id: dataOrder.reference_id, subcribe_to_pool_tx_hash: tx }),
+                    });
+                    console.log('Updated order after subcribe to pool:', await updatedb.json());
+                    toast.success('Subcribed to pool successfully');
+                } catch (error) {
+                    console.error('Error create payment test:', error);
+                    toast.error('Error subcribe to pool: ' + (error as Error).message);
+                }
+            }
+        }
+    }, [stepData.currentStep, stepData.isProcessDone]);
 
     useEffect(() => {
         let currentStep = 0;
@@ -36,8 +83,9 @@ export default function OrderInformation({ dataOrder, isSuccess }: { dataOrder: 
         if (dataOrder.payment.shipping.smart_wallet_address) {
             if (dataOrder.status == OrderStatus.CreateAndSendTokenSuccess) {
                 steps.push(stepPayment(), stepCreateAndSendToken(), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
+            } else {
+                steps.push(stepPayment(), stepSendTokenToSmartWallet(dataOrder.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
             }
-            steps.push(stepPayment(), stepSendTokenToSmartWallet(dataOrder.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
         } else {
             steps.push(stepPayment(), stepCreateAndSendToken(), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
         }
@@ -86,7 +134,12 @@ export default function OrderInformation({ dataOrder, isSuccess }: { dataOrder: 
                             break;
                         case OrderStatus.CreateAndSendTokenSuccess:
                             setStepData((prev) => ({ ...prev, currentStep: 2, isProcessDone: false }));
-                            return; // stop checking tam thoi
+                            // const checkReadySubToPool = await checkConditionSmartWallet();
+                            // if (checkReadySubToPool) {
+                            //     await subcribeToPool();
+                            //     return; // stop checking tam thoi
+                            // }
+                            await sleep(1500); // wait for db update
                             break;
                         case OrderStatus.CreateAndSendTokenFail:
                             setStepData((prev) => ({ ...prev, currentStep: 1, isProcessDone: true }));
@@ -97,10 +150,20 @@ export default function OrderInformation({ dataOrder, isSuccess }: { dataOrder: 
                             break;
                         case OrderStatus.TokenSendSuccess:
                             setStepData((prev) => ({ ...prev, currentStep: 2, isProcessDone: false }));
-                            return; // stop checking
+                            // const checkReadySubToPool2 = await checkConditionSmartWallet();
+                            // if (checkReadySubToPool2) {
+                            //     await subcribeToPool();
+                            //     return; // stop checking tam thoi
+                            // }
+                            // return; // stop checking
+                            await sleep(1500); // wait for db update
+                            break;
                         case OrderStatus.TokenSendFail:
                             setStepData((prev) => ({ ...prev, currentStep: 1, isProcessDone: true }));
                             return; // stop checking
+                        case OrderStatus.SubcribeToPoolSuccess:
+                            setStepData((prev) => ({ ...prev, currentStep: 3, isProcessDone: true }));
+                            return; // done
                     }
                 }
                 sleep(600);

@@ -18,7 +18,7 @@ import { DefaultPolicyClient } from './defaultPolicy';
 import { buildCallPolicyMessage, buildChangePolicyMessage, buildExecuteMessage, buildCreateChunkMessage } from '../messages';
 import { Buffer } from 'buffer';
 import { buildPasskeyVerificationInstruction, convertPasskeySignatureToInstructionArgs } from '../auth';
-import { buildVersionedTransaction, buildLegacyTransaction, combineInstructionsWithAuth } from '../transaction';
+import { buildTransaction, buildVersionedTransaction, buildLegacyTransaction, combineInstructionsWithAuth } from '../transaction';
 import base58 from 'bs58';
 
 global.Buffer = Buffer;
@@ -202,10 +202,10 @@ export class LazorkitClient {
 
         const accounts = await this.connection.getProgramAccounts(this.programId, {
             dataSlice: {
-                offset: 8,
+                offset: 9,
                 length: 33,
             },
-            filters: [{ memcmp: { offset: 0, bytes: base58.encode(discriminator) } }, { memcmp: { offset: 8, bytes: base58.encode(passkeyPublicKey) } }],
+            filters: [{ memcmp: { offset: 0, bytes: base58.encode(discriminator) } }, { memcmp: { offset: 9, bytes: base58.encode(passkeyPublicKey) } }],
         });
 
         if (accounts.length === 0) {
@@ -262,7 +262,7 @@ export class LazorkitClient {
                 defaultPolicyProgram: this.defaultPolicyProgram.programId,
                 systemProgram: SystemProgram.programId,
             })
-            .remainingAccounts([...instructionToAccountMetas(policyInstruction)])
+            .remainingAccounts([...instructionToAccountMetas(policyInstruction, [payer])])
             .instruction();
     }
 
@@ -304,6 +304,7 @@ export class LazorkitClient {
 
         if (args.newWalletDevice) {
             const newWalletDevice = this.getWalletDevicePubkey(smartWallet, args.newWalletDevice.passkeyPublicKey);
+
             remaining.push({
                 pubkey: newWalletDevice,
                 isWritable: true,
@@ -403,7 +404,7 @@ export class LazorkitClient {
      */
     async buildExecuteChunkIns(payer: PublicKey, smartWallet: PublicKey, cpiInstructions: TransactionInstruction[]): Promise<TransactionInstruction> {
         const cfg = await this.getSmartWalletConfigData(smartWallet);
-        const chunk = this.getChunkPubkey(smartWallet, cfg.lastNonce);
+        const chunk = this.getChunkPubkey(smartWallet, cfg.lastNonce.sub(new BN(1)));
 
         const vaultIndex = await this.getChunkData(chunk).then((d) => d.vaultIndex);
 
@@ -435,6 +436,28 @@ export class LazorkitClient {
                 systemProgram: SystemProgram.programId,
             })
             .remainingAccounts(allAccountMetas)
+            .instruction();
+    }
+
+    /**
+     * Builds the close chunk instruction
+     */
+    async buildCloseChunkIns(payer: PublicKey, smartWallet: PublicKey, nonce: BN): Promise<TransactionInstruction> {
+        const chunk = this.getChunkPubkey(smartWallet, nonce);
+
+        const sessionRefund = await this.getChunkData(chunk).then((d) => d.rentRefundAddress);
+
+        const smartWalletConfig = this.getSmartWalletConfigDataPubkey(smartWallet);
+
+        return await this.program.methods
+            .closeChunk()
+            .accountsPartial({
+                payer,
+                smartWallet,
+                smartWalletConfig,
+                chunk,
+                sessionRefund,
+            })
             .instruction();
     }
 
@@ -505,7 +528,7 @@ export class LazorkitClient {
     // High-Level Transaction Builders (with Authentication)
     // ============================================================================
 
-    async manageVaultTxn(params: types.ManageVaultParams): Promise<VersionedTransaction> {
+    async manageVaultTxn(params: types.ManageVaultParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
         const manageVaultInstruction = await this.program.methods
             .manageVault(params.action === 'deposit' ? 0 : 1, params.amount, params.vaultIndex)
             .accountsPartial({
@@ -516,14 +539,20 @@ export class LazorkitClient {
                 systemProgram: SystemProgram.programId,
             })
             .instruction();
-        return buildVersionedTransaction(this.connection, params.payer, [manageVaultInstruction]);
+
+        const result = await buildTransaction(this.connection, params.payer, [manageVaultInstruction], options);
+
+        return result.transaction;
     }
 
     /**
      * Creates a smart wallet with passkey authentication
      */
-    async createSmartWalletTxn(params: types.CreateSmartWalletParams): Promise<{
-        transaction: Transaction;
+    async createSmartWalletTxn(
+        params: types.CreateSmartWalletParams,
+        options: types.TransactionBuilderOptions = {}
+    ): Promise<{
+        transaction: Transaction | VersionedTransaction;
         smartWalletId: BN;
         smartWallet: PublicKey;
     }> {
@@ -531,7 +560,7 @@ export class LazorkitClient {
         const smartWallet = this.getSmartWalletPubkey(smartWalletId);
         const walletDevice = this.getWalletDevicePubkey(smartWallet, params.passkeyPublicKey);
 
-        let policyInstruction = await this.defaultPolicyProgram.buildInitPolicyIx(params.smartWalletId, params.passkeyPublicKey, smartWallet, walletDevice);
+        let policyInstruction = await this.defaultPolicyProgram.buildInitPolicyIx(smartWalletId, params.passkeyPublicKey, smartWallet, walletDevice);
 
         if (params.policyInstruction) {
             policyInstruction = params.policyInstruction;
@@ -549,7 +578,8 @@ export class LazorkitClient {
 
         const instruction = await this.buildCreateSmartWalletIns(params.payer, smartWallet, walletDevice, policyInstruction, args);
 
-        const transaction = await buildLegacyTransaction(this.connection, params.payer, [instruction]);
+        const result = await buildTransaction(this.connection, params.payer, [instruction], options);
+        const transaction = result.transaction;
 
         return {
             transaction,
@@ -561,7 +591,7 @@ export class LazorkitClient {
     /**
      * Executes a direct transaction with passkey authentication
      */
-    async executeTxn(params: types.ExecuteParams): Promise<VersionedTransaction> {
+    async executeTxn(params: types.ExecuteParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
         const authInstruction = buildPasskeyVerificationInstruction(params.passkeySignature);
 
         const smartWalletId = await this.getSmartWalletConfigData(params.smartWallet).then((d) => d.walletId);
@@ -588,6 +618,7 @@ export class LazorkitClient {
                 splitIndex: policyInstruction.keys.length,
                 policyData: policyInstruction.data,
                 cpiData: params.cpiInstruction.data,
+                timestamp: params.timestamp,
                 vaultIndex: params.vaultIndex !== undefined ? params.vaultIndex : this.generateVaultIndex(),
             },
             policyInstruction,
@@ -595,13 +626,16 @@ export class LazorkitClient {
         );
 
         const instructions = combineInstructionsWithAuth(authInstruction, [execInstruction]);
-        return buildVersionedTransaction(this.connection, params.payer, instructions);
+
+        const result = await buildTransaction(this.connection, params.payer, instructions, options);
+
+        return result.transaction;
     }
 
     /**
      * Invokes a wallet policy with passkey authentication
      */
-    async callPolicyTxn(params: types.CallPolicyParams): Promise<VersionedTransaction> {
+    async callPolicyTxn(params: types.CallPolicyParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
         const authInstruction = buildPasskeyVerificationInstruction(params.passkeySignature);
 
         const signatureArgs = convertPasskeySignatureToInstructionArgs(params.passkeySignature);
@@ -619,19 +653,24 @@ export class LazorkitClient {
                     : null,
                 policyData: params.policyInstruction.data,
                 verifyInstructionIndex: 0,
+                timestamp: params.timestamp,
                 vaultIndex: getVaultIndex(params.vaultIndex, () => this.generateVaultIndex()),
+                smartWalletIsSigner: params.smartWalletIsSigner === true,
             },
             params.policyInstruction
         );
 
         const instructions = combineInstructionsWithAuth(authInstruction, [invokeInstruction]);
-        return buildVersionedTransaction(this.connection, params.payer, instructions);
+
+        const result = await buildTransaction(this.connection, params.payer, instructions, options);
+
+        return result.transaction;
     }
 
     /**
      * Updates a wallet policy with passkey authentication
      */
-    async changePolicyTxn(params: types.ChangePolicyParams): Promise<VersionedTransaction> {
+    async changePolicyTxn(params: types.ChangePolicyParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
         const authInstruction = buildPasskeyVerificationInstruction(params.passkeySignature);
 
         const signatureArgs = convertPasskeySignatureToInstructionArgs(params.passkeySignature);
@@ -651,6 +690,7 @@ export class LazorkitClient {
                           credentialId: Buffer.from(params.newWalletDevice.credentialIdBase64, 'base64'),
                       }
                     : null,
+                timestamp: new BN(Math.floor(Date.now() / 1000)),
                 vaultIndex: getVaultIndex(params.vaultIndex, () => this.generateVaultIndex()),
             },
             params.destroyPolicyInstruction,
@@ -658,13 +698,16 @@ export class LazorkitClient {
         );
 
         const instructions = combineInstructionsWithAuth(authInstruction, [updateInstruction]);
-        return buildVersionedTransaction(this.connection, params.payer, instructions);
+
+        const result = await buildTransaction(this.connection, params.payer, instructions, options);
+
+        return result.transaction;
     }
 
     /**
      * Creates a deferred execution with passkey authentication
      */
-    async createChunkTxn(params: types.CreateChunkParams): Promise<VersionedTransaction> {
+    async createChunkTxn(params: types.CreateChunkParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
         const authInstruction = buildPasskeyVerificationInstruction(params.passkeySignature);
 
         const smartWalletId = await this.getSmartWalletConfigData(params.smartWallet).then((d) => d.walletId);
@@ -682,30 +725,57 @@ export class LazorkitClient {
 
         const signatureArgs = convertPasskeySignatureToInstructionArgs(params.passkeySignature);
 
+        // Calculate cpiHash from empty CPI instructions (since create chunk doesn't have CPI instructions)
+        const { computeMultipleCpiHashes } = await import('../messages');
+        const cpiHashes = computeMultipleCpiHashes(params.payer, params.cpiInstructions, params.smartWallet);
+
+        // Create combined hash of CPI hashes
+        const cpiCombined = new Uint8Array(64); // 32 + 32 bytes
+        cpiCombined.set(cpiHashes.cpiDataHash, 0);
+        cpiCombined.set(cpiHashes.cpiAccountsHash, 32);
+        const cpiHash = new Uint8Array(require('js-sha256').arrayBuffer(cpiCombined));
+
         const sessionInstruction = await this.buildCreateChunkIns(
             params.payer,
             params.smartWallet,
             {
                 ...signatureArgs,
-                expiresAt: new BN(params.expiresAt),
-                policyData: policyInstruction.data,
+                policyData: policyInstruction?.data || Buffer.alloc(0),
                 verifyInstructionIndex: 0,
+                timestamp: params.timestamp || new BN(Math.floor(Date.now() / 1000)),
+                cpiHash: Array.from(cpiHash),
                 vaultIndex: getVaultIndex(params.vaultIndex, () => this.generateVaultIndex()),
             },
             policyInstruction
         );
 
         const instructions = combineInstructionsWithAuth(authInstruction, [sessionInstruction]);
-        return buildVersionedTransaction(this.connection, params.payer, instructions);
+
+        const result = await buildTransaction(this.connection, params.payer, instructions, options);
+
+        return result.transaction;
     }
 
     /**
      * Executes a deferred transaction (no authentication needed)
      */
-    async executeChunkTxn(params: types.ExecuteChunkParams): Promise<VersionedTransaction> {
+    async executeChunkTxn(params: types.ExecuteChunkParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
         const instruction = await this.buildExecuteChunkIns(params.payer, params.smartWallet, params.cpiInstructions);
 
-        return buildVersionedTransaction(this.connection, params.payer, [instruction]);
+        const result = await buildTransaction(this.connection, params.payer, [instruction], options);
+
+        return result.transaction;
+    }
+
+    /**
+     * Closes a deferred transaction (no authentication needed)
+     */
+    async closeChunkTxn(params: types.CloseChunkParams, options: types.TransactionBuilderOptions = {}): Promise<Transaction | VersionedTransaction> {
+        const instruction = await this.buildCloseChunkIns(params.payer, params.smartWallet, params.nonce);
+
+        const result = await buildTransaction(this.connection, params.payer, [instruction], options);
+
+        return result.transaction;
     }
 
     // ============================================================================
@@ -738,7 +808,8 @@ export class LazorkitClient {
 
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
 
-                message = buildExecuteMessage(smartWallet, smartWalletConfig.lastNonce, new BN(Math.floor(Date.now() / 1000)), policyInstruction, cpiInstruction, [payer]);
+                const timestamp = new BN(Math.floor(Date.now() / 1000));
+                message = buildExecuteMessage(payer, smartWallet, smartWalletConfig.lastNonce, timestamp, policyInstruction, cpiInstruction);
                 break;
             }
             case types.SmartWalletAction.CallPolicy: {
@@ -746,7 +817,8 @@ export class LazorkitClient {
 
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
 
-                message = buildCallPolicyMessage(smartWallet, smartWalletConfig.lastNonce, new BN(Math.floor(Date.now() / 1000)), policyInstruction, [payer]);
+                const timestamp = new BN(Math.floor(Date.now() / 1000));
+                message = buildCallPolicyMessage(payer, smartWallet, smartWalletConfig.lastNonce, timestamp, policyInstruction);
                 break;
             }
             case types.SmartWalletAction.ChangePolicy: {
@@ -754,16 +826,18 @@ export class LazorkitClient {
 
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
 
-                message = buildChangePolicyMessage(smartWallet, smartWalletConfig.lastNonce, new BN(Math.floor(Date.now() / 1000)), destroyPolicyIns, initPolicyIns);
+                const timestamp = new BN(Math.floor(Date.now() / 1000));
+                message = buildChangePolicyMessage(payer, smartWallet, smartWalletConfig.lastNonce, timestamp, destroyPolicyIns, initPolicyIns);
                 break;
             }
             case types.SmartWalletAction.CreateChunk: {
                 const { policyInstruction, cpiInstructions, expiresAt } = action.args as types.ArgsByAction[types.SmartWalletAction.CreateChunk];
 
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
-                // if (!policyInstruction) throw new Error('Policy instruction is required for CreateChunk action');
-                // @ts-ignore
-                message = buildCreateChunkMessage(smartWallet, smartWalletConfig.lastNonce, new BN(Math.floor(Date.now() / 1000)), policyInstruction, cpiInstructions, new BN(expiresAt), [payer]);
+
+                const timestamp = new BN(Math.floor(Date.now() / 1000));
+                //@ts-ignore
+                message = buildCreateChunkMessage(payer, smartWallet, smartWalletConfig.lastNonce, timestamp, policyInstruction, cpiInstructions);
                 break;
             }
 

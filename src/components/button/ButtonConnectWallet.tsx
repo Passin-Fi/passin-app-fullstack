@@ -4,36 +4,19 @@ import { useWallet } from '@lazorkit/wallet';
 import { Key, Wallet2 } from 'lucide-react';
 import React from 'react';
 import { Button } from 'shadcn/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuShortcut, DropdownMenuTrigger } from 'shadcn/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'shadcn/dropdown-menu';
 import { usePasskeyConnected } from 'src/jotai/connect-wallet/hooks';
-import { convertArrayNumberToBase64 } from 'src/utils';
 import { formatAddress } from 'src/utils/format';
 
 export default function ButtonConnectWallet() {
-    const {
-        connectPasskey,
-        isConnecting,
-        isLoading,
-        smartWalletPubkey,
-        wallet,
-        isConnected,
-        signAndSendTransaction,
-        getSmartWalletStatus,
-        isSmartWalletReady,
-        createSmartWallet,
-        buildSmartWalletTransaction,
-        connect,
-        disconnect,
-    } = useWallet();
-    const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
+    const { connectPasskey, isConnecting, isLoading, smartWalletPubkey, wallet, isConnected, signAndSendTransaction, createSmartWallet, buildSmartWalletTransaction, connect, disconnect } =
+        useWallet();
+    const { passkeyConnected } = usePasskeyConnected();
     const router = useRouter();
 
     async function getPasskeysSelect() {
         try {
             const data = await connectPasskey();
-
-            console.log('data', { data, wallet, smartWalletPubkey });
-            setPasskeyConnected(data);
         } catch (error) {
             console.error('Error creating passkey-only wallet:', error);
         }
@@ -43,13 +26,6 @@ export default function ButtonConnectWallet() {
         try {
             const data = await connect();
             console.log('data', data);
-            setPasskeyConnected({
-                credentialId: data.credentialId,
-                publicKey: convertArrayNumberToBase64(data.passkeyPubkey),
-                isCreated: true,
-                smartWallet: data.smartWallet,
-                smartWalletId: data.walletDevice,
-            });
         } catch (error) {
             console.error('Error creating smart wallet:', error);
         }

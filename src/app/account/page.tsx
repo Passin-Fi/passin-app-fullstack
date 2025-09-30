@@ -11,10 +11,13 @@ import { IconTelegram } from 'src/components/icons/IconTelegram';
 import { useTheme } from 'next-themes';
 import { Sun } from 'lucide-react';
 import { useWallet } from '@lazorkit/wallet';
+import { usePasskeyConnected } from 'src/jotai/connect-wallet/hooks';
+import { copyToClipboard } from 'src/utils';
 
 export default function Account() {
     const { setTheme, theme } = useTheme();
-    const { isConnected, disconnect } = useWallet();
+    const { isConnected, disconnect, smartWalletPubkey } = useWallet();
+    const { passkeyConnected } = usePasskeyConnected();
     return (
         <div>
             <div className="flex place-items-center justify-between">
@@ -22,7 +25,18 @@ export default function Account() {
                     <CryptoIcon name={WalletName.LazorKit} className="rounded-full" size={40} />
                     <div>
                         <p className="text-sm leading-4.5">{WalletName.LazorKit}</p>
-                        <p className="text-sm leading-4.5 font-bold">Qwdaf8jffoad89m8sAstar4</p>
+                        <p
+                            className="text-sm leading-4.5 font-bold whitespace-nowrap text-ellipsis overflow-hidden cursor-pointer"
+                            onClick={() => {
+                                if (smartWalletPubkey) {
+                                    copyToClipboard(smartWalletPubkey.toString());
+                                } else if (passkeyConnected) {
+                                    copyToClipboard(passkeyConnected.publicKey);
+                                }
+                            }}
+                        >
+                            {smartWalletPubkey ? smartWalletPubkey.toString() : passkeyConnected ? passkeyConnected.publicKey.toString() : 'Sign in with passkeys'}
+                        </p>
                     </div>
                 </div>
                 <div className="cursor-pointer">

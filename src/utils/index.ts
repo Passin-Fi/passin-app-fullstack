@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { toast } from 'react-toastify';
 
 export function isNumeric(num: any) {
     return !isNaN(num) && !isNaN(parseFloat(num));
@@ -27,4 +28,22 @@ export function BN(value: any): BigNumber {
 
 export function DEC(value: string | number): BigNumber {
     return BN(10).pow(value);
+}
+
+export function copyToClipboard(text: string) {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard
+            .writeText(text)
+            .then(() => {
+                // console.log('Text copied to clipboard');
+                toast.success('Copied successfully!');
+            })
+            .catch((err) => {
+                console.error('Could not copy text: ', err);
+                toast.error('Copy failed!' + ' ' + err.message);
+            });
+    } else {
+        console.error('Clipboard API not supported');
+        toast.error('Copy failed! Clipboard API not supported');
+    }
 }
