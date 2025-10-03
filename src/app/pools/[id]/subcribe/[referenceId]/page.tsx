@@ -55,7 +55,7 @@ export default async function ResultOrderPayment({ params, searchParams }: PageP
         <div className="mx-auto max-w-[450px] py-4 px-1 space-y-2">
             <h1 className="text-lg font-semibold">Order ID: {referenceId}</h1>
             {search.status && <p className="text-sm text-muted-foreground">Status param: {String(search.status)}</p>}
-            <OrderInformation dataOrder={order as OrderDoc} isSuccess={true} />
+            <OrderInformation dataOrder={order as OrderDoc} isSuccessPayment={search.status == 'success'} />
             <pre className="mt-4 overflow-auto rounded bg-muted p-3 text-xs leading-relaxed">{JSON.stringify(order, null, 2)}</pre>
         </div>
     );

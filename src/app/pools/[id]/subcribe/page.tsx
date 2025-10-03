@@ -136,6 +136,11 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 },
                 body: JSON.stringify(bodyData),
             });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response data:', errorData);
+                throw new Error(errorData.error || 'Failed to create order');
+            }
             const data = await response.json();
             toast.success('Order created! Redirecting to payment...');
             console.log('Response data:', data);
@@ -261,6 +266,8 @@ function TestGetPaymentStatus() {
         connect,
         connectPasskey,
         isConnected,
+        isConnecting,
+        disconnect,
         syncWalletStatus,
         isLoading,
         error,
@@ -371,7 +378,7 @@ function TestGetPaymentStatus() {
     async function checkSmartWalletIsCreated() {
         try {
             const response = await getSmartWalletByPasskey(wallet?.passkeyPubkey || []);
-            console.log('getSmartWalletByPasskey response data:', response);
+            console.log('getSmartWalletByPasskey response data:', { smartwallet: response.smartWallet?.toString(), walletDevice: response.walletDevice?.toString() });
         } catch (error) {
             console.error('Error checkSmartWalletIsCreated:', error);
         }
@@ -385,7 +392,10 @@ function TestGetPaymentStatus() {
                 Test create payment
             </Button>
 
-            <p>{isLoading ? 'Loading' : ''}</p>
+            <p>Check isLoading {isLoading ? 'true' : 'false'}</p>
+            <p>Check isConnecting {isConnecting ? 'true' : 'false'}</p>
+            <p>Check isConnected {isConnected ? 'true' : 'false'}</p>
+
             <div className="mt-2">
                 <Button variant={'secondary'} onClick={syncWalletStatus}>
                     syncWalletStatus()
@@ -415,6 +425,12 @@ function TestGetPaymentStatus() {
 
             <div className="mt-2">
                 <Button onClick={checkSmartWalletIsCreated}>Check smart wallet is created</Button>
+            </div>
+
+            <div className="mt-2">
+                <Button variant={'destructive'} onClick={disconnect}>
+                    Disconnect()
+                </Button>
             </div>
         </div>
     );
