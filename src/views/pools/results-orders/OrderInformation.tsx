@@ -185,6 +185,8 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
 
     const subcribeToPool = async () => {
         if (!smartWalletPubkey) return;
+        console.log('Start subcribe to pool ........');
+        console.log({ smartWalletPubkey, wallet });
         try {
             isSubscribingRef.current = true;
             const ixs: TransactionInstruction[] = [];
@@ -217,7 +219,8 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
         if (walletReadyRef.current || hasSubscribedRef.current || isSubscribingRef.current) return;
         (async () => {
             try {
-                await syncWalletStatus();
+                const dataSync = await syncWalletStatus();
+                console.log('syncWalletStatus done:', dataSync);
                 await sleep(150);
                 walletReadyRef.current = true;
                 setShouldSubscribe(true);

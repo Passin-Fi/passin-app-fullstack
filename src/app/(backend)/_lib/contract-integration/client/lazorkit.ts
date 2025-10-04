@@ -202,10 +202,10 @@ export class LazorkitClient {
 
         const accounts = await this.connection.getProgramAccounts(this.programId, {
             dataSlice: {
-                offset: 9,
-                length: 33,
+                offset: 8 + 1, // offset: DISCRIMINATOR + BUMPS
+                length: 33, // length: PASSKEY_PUBLIC_KEY
             },
-            filters: [{ memcmp: { offset: 0, bytes: base58.encode(discriminator) } }, { memcmp: { offset: 9, bytes: base58.encode(passkeyPublicKey) } }],
+            filters: [{ memcmp: { offset: 0, bytes: base58.encode(discriminator) } }, { memcmp: { offset: 8 + 1, bytes: base58.encode(passkeyPublicKey) } }],
         });
 
         if (accounts.length === 0) {
@@ -217,6 +217,52 @@ export class LazorkitClient {
         return {
             walletDevice: accounts[0].pubkey,
             smartWallet: walletDeviceData.smartWalletAddress,
+        };
+    }
+
+    /**
+     * Find smart wallet by credential ID
+     */
+    async getSmartWalletByCredentialId(credentialId: string): Promise<{
+        smartWallet: PublicKey | null;
+        smartWalletAuthenticator: PublicKey | null;
+        passkeyPubkey: string;
+    }> {
+        const discriminator = LazorkitIdl.accounts.find((a: any) => a.name === 'WalletDevice')!.discriminator;
+
+        // Convert credential_id to base64 buffer
+        const credentialIdBuffer = Buffer.from(credentialId, 'base64');
+
+        const accounts = await this.connection.getProgramAccounts(this.programId, {
+            dataSlice: {
+                offset: 8 + 1 + 33 + 32 + 4, // offset: DISCRIMINATOR + BUMPS + PASSKEY_PUBLIC_KEY + SMART_WALLET_ADDRESS + VECTOR_LENGTH_OFFSET
+                length: credentialIdBuffer.length,
+            },
+            filters: [
+                { memcmp: { offset: 0, bytes: base58.encode(discriminator) } },
+                {
+                    memcmp: {
+                        offset: 8 + 1 + 33 + 32 + 4, // offset: DISCRIMINATOR + BUMPS + PASSKEY_PUBLIC_KEY + SMART_WALLET_ADDRESS + VECTOR_LENGTH_OFFSET
+                        bytes: base58.encode(credentialIdBuffer),
+                    },
+                },
+            ],
+        });
+
+        if (accounts.length === 0) {
+            return {
+                smartWalletAuthenticator: null,
+                smartWallet: null,
+                passkeyPubkey: '',
+            };
+        }
+
+        const smartWalletData = await this.getWalletDeviceData(accounts[0].pubkey);
+
+        return {
+            smartWalletAuthenticator: accounts[0].pubkey,
+            smartWallet: smartWalletData.smartWalletAddress,
+            passkeyPubkey: base58.encode(smartWalletData.passkeyPublicKey),
         };
     }
 
@@ -560,7 +606,8 @@ export class LazorkitClient {
         const smartWallet = this.getSmartWalletPubkey(smartWalletId);
         const walletDevice = this.getWalletDevicePubkey(smartWallet, params.passkeyPublicKey);
 
-        let policyInstruction = await this.defaultPolicyProgram.buildInitPolicyIx(smartWalletId, params.passkeyPublicKey, smartWallet, walletDevice);
+        // @ts-ignore
+        let policyInstruction = await this.defaultPolicyProgram.buildInitPolicyIx(params.smartWalletId, params.passkeyPublicKey, smartWallet, walletDevice);
 
         if (params.policyInstruction) {
             policyInstruction = params.policyInstruction;
@@ -836,7 +883,7 @@ export class LazorkitClient {
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
 
                 const timestamp = new BN(Math.floor(Date.now() / 1000));
-                //@ts-ignore
+                // @ts-ignore
                 message = buildCreateChunkMessage(payer, smartWallet, smartWalletConfig.lastNonce, timestamp, policyInstruction, cpiInstructions);
                 break;
             }

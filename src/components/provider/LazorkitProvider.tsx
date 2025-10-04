@@ -1,11 +1,12 @@
 'use client';
 import React from 'react';
 import { LazorkitProvider as LazorkitWalletProvider } from '@lazorkit/wallet';
+import { rpcDevnet } from 'src/constant';
 
 export default function LazorkitProvider({ children }: { children: React.ReactNode }) {
     return (
         <LazorkitWalletProvider
-            rpcUrl="https://api.devnet.solana.com"
+            rpcUrl={rpcDevnet}
             paymasterUrl="https://kora-9do3.onrender.com"
             portalUrl="https://portal.lazor.sh"
 

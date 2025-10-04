@@ -282,6 +282,15 @@ function TestGetPaymentStatus() {
     const { passkeyConnected } = usePasskeyConnected();
     const localPasskey = useAtomValue(atomlocalPasskey);
 
+    async function testSyncWalletStatus() {
+        try {
+            const res = await syncWalletStatus();
+            console.log('syncWalletStatus success:', res);
+        } catch (error) {
+            console.error('Error syncWalletStatus:', error);
+        }
+    }
+
     function logs() {
         console.log('Local storage PUBLIC_KEY:', localPasskey);
         console.log({ passkeyConnected, smartWalletPubkey, isConnected, wallet });
@@ -397,7 +406,7 @@ function TestGetPaymentStatus() {
             <p>Check isConnected {isConnected ? 'true' : 'false'}</p>
 
             <div className="mt-2">
-                <Button variant={'secondary'} onClick={syncWalletStatus}>
+                <Button variant={'secondary'} onClick={testSyncWalletStatus}>
                     syncWalletStatus()
                 </Button>
             </div>
