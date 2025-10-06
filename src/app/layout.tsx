@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Geist_Mono, Mulish } from 'next/font/google';
 import './globals.css';
 import { BugIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -8,19 +7,10 @@ import ThemeProvider from 'src/components/provider/ThemeProvider';
 import JotaiProvider from 'src/components/provider/JotaiProvider';
 import LazorkitProvider from 'src/components/provider/LazorkitProvider';
 import ReactQueryProvider from 'src/components/provider/ReactQueryProvider';
-import { ToastContainer } from 'react-toastify';
 import { KEYWORDS, SITE_DESCRIPTION, SITE_TITLE, SITE_URL, THUMBNAIL } from 'src/constant/metadata';
 import Layout from 'src/components/layout/Layout';
-
-const mulish = Mulish({
-    subsets: ['latin'],
-    display: 'swap',
-});
-
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
-});
+import ToastCustom from 'src/components/toast-custom/ToastCustom';
+import { geistMono, mulish } from 'src/constant/font';
 
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
@@ -99,7 +89,7 @@ export default function RootLayout({
                                 </div>
                             )}
                         </ThemeProvider>
-                        <ToastContainer />
+                        <ToastCustom />
                     </ProgressProvider>
                 </main>
             </body>
