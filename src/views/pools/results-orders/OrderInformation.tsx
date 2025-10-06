@@ -21,33 +21,33 @@ const stepPayment = () => ({ title: 'Payment', description: 'Check fiat money de
 const stepCreateAndSendToken = (smartWallet?: string) => ({
     title: 'Create Smart Wallet & Send Token',
     description: (
-        <pre>
+        <p className="text-inherit text-sm">
             Creating smart wallet corresponding for your passkeys and send tokens to smart wallet. <br />
             {smartWallet && <span className="text-foreground">Created and Send to your wallet: {formatAddress(smartWallet, 7, 5)}</span>}
-        </pre>
+        </p>
     ),
 });
 const stepSendTokenToSmartWallet = (smartWallet: string) => ({
     title: 'Send Token to Smart Wallet',
     description: (
-        <pre>
+        <p className="text-inherit text-sm">
             Send tokens to the smart wallet. <br />
             <span className="text-foreground">Send to your wallet: {formatAddress(smartWallet, 7, 5)}</span>
-        </pre>
+        </p>
     ),
 });
 const stepSubToPool = (poolName: string, txHash?: string) => ({
     title: 'Subcrib to Pools',
     description: (
-        <pre className="overflow-hidden text-ellipsis whitespace-nowrap">
+        <p className="text-inherit text-sm">
             Deposit tokens to the pool. Pool: {poolName}
             <br />
             {txHash && (
-                <a className="text-foreground" target="_blank" href={`https://solscan.io/tx/${txHash}?cluster=devnet`}>
+                <a className="text-foreground overflow-hidden text-ellipsis whitespace-nowrap" target="_blank" href={`https://solscan.io/tx/${txHash}?cluster=devnet`}>
                     Tx: {formatAddress(txHash, 15, 6)} <SquareArrowOutUpRight className="inline" size={14} />
                 </a>
             )}
-        </pre>
+        </p>
     ),
 });
 

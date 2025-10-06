@@ -49,7 +49,7 @@ export default function Subcribe() {
 function UIPoolIdValid({ idPool }: { idPool: string }) {
     const priceTokenInVND = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'VND');
     const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'USD');
-    const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
+    const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('USD');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
     const { passkeyConnected } = usePasskeyConnected();
     const { smartWalletPubkey, wallet } = useWallet();
