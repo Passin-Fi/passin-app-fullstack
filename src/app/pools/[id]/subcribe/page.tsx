@@ -210,7 +210,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     <ButtonSubcribe onClick={subcribe} />
                 </div>
             </CardCustom>
-            <TestGetPaymentStatus />
+            {process.env.NODE_ENV === 'development' && <TestGetPaymentStatus />}
         </div>
     );
 }
@@ -232,7 +232,7 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
         <Button className="flex-1" onClick={handleClick} disabled={loading}>
             {loading ? (
                 <>
-                    <LoadingAnimation1 size={22} /> Processing...
+                    <LoadingAnimation1 className="text-foreground" size={22} /> Processing...
                 </>
             ) : (
                 'Subcribe'
