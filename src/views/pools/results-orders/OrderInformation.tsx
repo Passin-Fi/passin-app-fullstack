@@ -4,7 +4,7 @@ import { useRouter } from '@bprogress/next/app';
 import { TransactionInstruction, useWallet, useWalletStore, WalletInfo } from '@lazorkit/wallet';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { OrderDoc, OrderStatus } from 'backend/_types/order';
-import { TriangleAlert } from 'lucide-react';
+import { ExternalLink, SquareArrowOutUpRight, TriangleAlert } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from 'shadcn/button';
@@ -18,9 +18,38 @@ import { BN, sleep } from 'src/utils';
 import { formatAddress, formatNumber } from 'src/utils/format';
 
 const stepPayment = () => ({ title: 'Payment', description: 'Check fiat money deposited into the system.' });
-const stepCreateAndSendToken = () => ({ title: 'Create Smart Wallet & Send Token', description: 'Creating smart wallet corresponding for your passkeys and send tokens to smart wallet.' });
-const stepSendTokenToSmartWallet = (smartWallet: string) => ({ title: 'Send Token to Smart Wallet', description: `Send tokens to the smart wallet. (${formatAddress(smartWallet, 4, 4)})` });
-const stepSubToPool = (poolName: string) => ({ title: 'Subcrib to Pools', description: <pre>Deposit tokens to the pool. Pool: {poolName}</pre> });
+const stepCreateAndSendToken = (smartWallet?: string) => ({
+    title: 'Create Smart Wallet & Send Token',
+    description: (
+        <pre>
+            Creating smart wallet corresponding for your passkeys and send tokens to smart wallet. <br />
+            {smartWallet && <span className="text-foreground">Created and Send to your wallet: {formatAddress(smartWallet, 7, 5)}</span>}
+        </pre>
+    ),
+});
+const stepSendTokenToSmartWallet = (smartWallet: string) => ({
+    title: 'Send Token to Smart Wallet',
+    description: (
+        <pre>
+            Send tokens to the smart wallet. <br />
+            <span className="text-foreground">Send to your wallet: {formatAddress(smartWallet, 7, 5)}</span>
+        </pre>
+    ),
+});
+const stepSubToPool = (poolName: string, txHash?: string) => ({
+    title: 'Subcrib to Pools',
+    description: (
+        <pre className="overflow-hidden text-ellipsis whitespace-nowrap">
+            Deposit tokens to the pool. Pool: {poolName}
+            <br />
+            {txHash && (
+                <a className="text-foreground" target="_blank" href={`https://solscan.io/tx/${txHash}?cluster=devnet`}>
+                    Tx: {formatAddress(txHash, 15, 6)} <SquareArrowOutUpRight className="inline" size={14} />
+                </a>
+            )}
+        </pre>
+    ),
+});
 
 export default function OrderInformation({ dataOrder, isSuccessPayment }: { dataOrder: OrderDoc; isSuccessPayment: boolean }) {
     const { wallet, isConnecting, isConnected, isLoading } = useWallet();
@@ -78,18 +107,18 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
     useEffect(() => {
         const o = orderState.order;
         const steps: StepperProps['steps'] = [];
-        if (o.payment.shipping.smart_wallet_address) {
+        if (o.request.shipping.id) {
             if (orderState.status === OrderStatus.CreateAndSendTokenSuccess) {
-                steps.push(stepPayment(), stepCreateAndSendToken(), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
+                steps.push(stepPayment(), stepCreateAndSendToken(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subcribe_to_pool_tx_hash));
             } else {
-                steps.push(stepPayment(), stepSendTokenToSmartWallet(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
+                steps.push(stepPayment(), stepSendTokenToSmartWallet(o.request.shipping.id), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subcribe_to_pool_tx_hash));
             }
         } else {
-            steps.push(stepPayment(), stepCreateAndSendToken(), stepSubToPool(poolInfo?.name || 'Unknown Pool'));
+            steps.push(stepPayment(), stepCreateAndSendToken(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subcribe_to_pool_tx_hash));
         }
         setStepData((prev) => ({ ...prev, steps }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [orderState.order.payment.shipping.smart_wallet_address, orderState.status, poolInfo?.name]);
+    }, [orderState.order.request.shipping.id, orderState.status, poolInfo?.name]);
 
     // Map status -> step
     useEffect(() => {
@@ -218,6 +247,7 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
         if (stepData.currentStep !== 2 || stepData.isProcessDone) return;
         if (walletReadyRef.current || hasSubscribedRef.current || isSubscribingRef.current) return;
         (async () => {
+            console.log(JSON.stringify({ currentStep: stepData.currentStep, isProcessDone: stepData.isProcessDone }));
             try {
                 const dataSync = await syncWalletStatus();
                 console.log('syncWalletStatus done:', dataSync);

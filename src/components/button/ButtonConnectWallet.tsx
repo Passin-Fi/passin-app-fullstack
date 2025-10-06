@@ -41,7 +41,7 @@ export default function ButtonConnectWallet() {
     if (smartWalletPubkey) {
         return (
             <Button variant={'secondary'} onClick={() => router.push('/account')}>
-                {formatAddress(smartWalletPubkey.toString(), 4, 4)}
+                {formatAddress(smartWalletPubkey.toString(), 5, 4)}
             </Button>
         );
     }
@@ -49,7 +49,7 @@ export default function ButtonConnectWallet() {
     if (passkeyConnected) {
         return (
             <Button variant={'secondary'} onClick={() => router.push('/account')}>
-                {formatAddress(passkeyConnected.publicKey, 4, 4)}
+                {formatAddress(passkeyConnected.publicKey, 5, 4)}
             </Button>
         );
     }
