@@ -37,11 +37,11 @@ export async function createSmartWalletAndSendToken(
                 credentialId,
                 policyData: policyInstruction.data,
                 walletId: smartWalletIdBn,
-                amount: new BN(0.001392 * LAMPORTS_PER_SOL),
+                amount: new BN(0.00342432 * LAMPORTS_PER_SOL),
                 referralAddress: null,
                 vaultIndex: null,
             };
-
+            //@ts-ignore
             const createSmartWalletIx = await lazorkitProgram.buildCreateSmartWalletIns(provider.publicKey, smartWallet, walletDevice, policyInstruction, args);
             ixs.push(createSmartWalletIx);
             console.log('##################Create smart wallet instruction added###############################');

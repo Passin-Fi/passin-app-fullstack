@@ -34,7 +34,7 @@ export async function POST(request: Request) {
             });
         } catch (apiErr) {
             console.error('Error creating order payment:', apiErr);
-            return NextResponse.json({ error: 'Failed to create order payment' }, { status: 502 });
+            return NextResponse.json({ error: 'Failed to create order payment. ' + (apiErr as Error).message }, { status: 502 });
         }
 
         // Lưu đơn hàng vào MongoDB (idempotent theo reference_id)

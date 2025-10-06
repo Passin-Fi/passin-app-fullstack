@@ -4,14 +4,14 @@ import useFetchOrders from './useFetchOrders';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from 'shadcn/accordion';
 import OrderCard from './OrderCard';
 import { useWallet } from '@lazorkit/wallet';
-import { usePasskeyConnectedValue } from 'src/jotai/connect-wallet/hooks';
+import { usePasskeyConnected } from 'src/jotai/connect-wallet/hooks';
 import { convertArrayNumberToBase64 } from 'src/utils';
 import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 
 export default function OrderList() {
     const { wallet } = useWallet();
-    const passkey = usePasskeyConnectedValue();
-    const { data, isLoading } = useFetchOrders(passkey?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
+    const { passkeyConnected } = usePasskeyConnected();
+    const { data, isLoading } = useFetchOrders(passkeyConnected?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
 
     return (
         <div className="mt-6">

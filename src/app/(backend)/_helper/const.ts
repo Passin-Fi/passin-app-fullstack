@@ -3,8 +3,9 @@ import { convertBase64ToArrayNumber } from 'src/utils';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import type { Wallet } from '@coral-xyz/anchor';
 import { LazorkitClient } from 'backend/_lib/contract-integration';
+import { rpcDevnet } from 'src/constant';
 
-export const connection = new Connection('https://api.devnet.solana.com');
+export const connection = new Connection(rpcDevnet);
 export class BackendSolanaClient {
     signerKeypair: Keypair;
     wallet: Wallet;

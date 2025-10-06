@@ -1,3 +1,5 @@
+'use client';
+
 import { PasskeyData } from '@lazorkit/wallet';
 import { atom } from 'jotai';
 

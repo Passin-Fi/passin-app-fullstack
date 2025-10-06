@@ -6,6 +6,7 @@ import { OrderStatus } from 'backend/_types/order';
 import { CreateOrderPaymentResponse } from 'src/services/payment/create-payment-order';
 import { PublicKey } from '@solana/web3.js';
 import { checkSmartWallet } from 'backend/_helper/check_smartwallet_by_passkey';
+import { BN } from 'bn.js';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -151,8 +152,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                                 credentialId: paymenData.shipping.passkey!.credential_id,
                                 publicKey: paymenData.shipping.passkey!.public_key,
                                 isCreated: true,
-                                smartWallet: paymenData.shipping.smart_wallet_address || '',
-                                smartWalletId: paymenData.shipping.smart_wallet_id,
+                                smartWalletAddress: paymenData.shipping.smart_wallet_address || '',
+                                smartWalletId: new BN(paymenData.shipping.smart_wallet_id),
                             },
                             new PublicKey(paymenData.order_lines.key),
                             // paymenData.order_lines.quantity
