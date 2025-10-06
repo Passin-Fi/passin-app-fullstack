@@ -8,7 +8,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   endAdornmentClassName?: string;
   variant?: "default" | "gradient";
   fullHeight?: boolean; // force h-full wrapper
-  
+  warpperClassName?: string;
 }
 
 /**
@@ -27,6 +27,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       type = "text",
       variant = "default",
       fullHeight,
+      warpperClassName,
       ...props
     },
     ref
@@ -41,8 +42,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           "group/input h-[38px] relative w-full inline-flex items-center rounded-input transition-colors ring-0 focus-within:outline-none mobile:px-2 tablet:px-3 desktop:px-4 gap-1.5",
           surfaceClasses,
           fullHeight && "h-full",
-          // startAdornment && "pl-2",
-          // endAdornment && "pr-3"
+          warpperClassName,
         )}
         data-slot="input-wrapper"
       >

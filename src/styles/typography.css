@@ -11,13 +11,22 @@
         @apply font-semibold leading-snug tracking-tight mobile:text-lg tablet:text-xl desktop:text-3xl;
     }
     h4 {
-        @apply font-medium leading-snug tracking-tight mobile:text-base tablet:text-lg desktop:text-2xl;
+        @apply font-medium leading-snug tracking-tight;
+        @apply mobile:text-base mobile:leading-5;
+        @apply tablet:text-lg tablet:leading-6;
+        @apply desktop:text-2xl desktop:leading-7;
     }
     h5 {
-        @apply font-medium leading-normal tracking-tight mobile:text-sm tablet:text-base desktop:text-xl;
+        @apply font-bold leading-normal tracking-tight;
+        @apply mobile:text-sm mobile:leading-4.5;
+        @apply tablet:text-base tablet:leading-5.5;
+        @apply desktop:text-xl desktop:leading-6.5;
     }
     h6 {
-        @apply font-medium uppercase tracking-wide mobile:text-xs tablet:text-sm desktop:text-lg;
+        @apply font-normal tracking-wide;
+        @apply mobile:text-xs mobile:leading-4.5;
+        @apply tablet:text-sm tablet:leading-5.5;
+        @apply desktop:text-lg desktop:leading-6.5;
     }
     p {
         @apply text-base leading-7;
@@ -27,10 +36,19 @@
 @layer components {
     /* Special text helpers */
     .lead {
-        @apply mobile:text-xs tablet:text-sm desktop:text-base;
+        @apply mobile:text-xs mobile:leading-4.5;
+        @apply tablet:text-sm tablet:leading-5.5;
+        @apply desktop:text-base desktop:leading-6.5;
+    }
+    .note {
+        @apply mobile:text-[10px] mobile:leading-4;
+        @apply tablet:text-xs tablet:leading-4.5;
+        @apply desktop:text-sm desktop:leading-5;
     }
     .muted {
-        @apply text-muted-foreground mobile:text-xs tablet:text-sm desktop:text-base;
+        @apply text-muted-foreground mobile:text-xs mobile:leading-4.5;
+        @apply tablet:text-sm tablet:leading-5.5;
+        @apply desktop:text-base desktop:leading-6.5;
     }
     .caption {
         @apply text-xs text-muted-foreground;

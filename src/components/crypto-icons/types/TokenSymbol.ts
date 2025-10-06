@@ -2,5 +2,6 @@
 export enum TokenSymbol {
   ETH = "ETH",
   SOL = "SOL",
+  USDC = "USDC",
   USDT = "USDT"
 }

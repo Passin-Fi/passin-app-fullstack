@@ -2,6 +2,7 @@ import React from 'react';
 import { layoutConstants } from './constant';
 import { Button } from 'shadcn/button';
 import Navigation from './Navigation';
+import ButtonConnectWallet from '../button/ButtonConnectWallet';
 
 export default function Header() {
     return (
@@ -11,9 +12,10 @@ export default function Header() {
                 <div className="flex items-center justify-between" style={{ height: layoutConstants.headerHeight }}>
                     <div>Logo</div>
                     <Navigation />
-                    <Button variant={'default'} className="">
+                    {/* <Button variant={'default'} className="">
                         Connect Wallet
-                    </Button>
+                    </Button> */}
+                    <ButtonConnectWallet />
                 </div>
             </div>
         </div>

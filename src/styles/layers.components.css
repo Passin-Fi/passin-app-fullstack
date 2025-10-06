@@ -28,4 +28,9 @@
         mix-blend-mode: overlay;
         pointer-events: none;
     }
+
+    .card-custom1 {
+        position: relative;
+        @apply rounded-card p-2.5 tablet:p-4 desktop:p-5 dark:bg-[#1E222D];
+    }
 }
