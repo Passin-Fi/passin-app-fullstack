@@ -56,8 +56,8 @@ export default function Stepper({ currentStep = 0, steps, isProcessDone = false 
                     : 'bg-gray-200 border-gray-300 text-gray-600';
 
                 return (
-                    <div key={index} className="flex items-center mb-6">
-                        <div className="flex flex-col items-center mr-4">
+                    <div key={index} className="flex items-start mb-6">
+                        <div className="flex flex-col items-center mt-1 mr-4">
                             <div className={cn('w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors', baseColor)}>{icon}</div>
                             {!isLast && <div className={cn('flex-1 w-px mt-1', isCompleted ? 'bg-emerald-500' : isProcessDone && isAfter ? 'bg-red-500' : 'bg-gray-300')} />}
                         </div>

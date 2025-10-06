@@ -80,26 +80,28 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${mulish.className} ${geistMono.variable} antialiased`}>
-                <ProgressProvider>
-                    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-                        <JotaiProvider>
-                            <LazorkitProvider>
-                                <ReactQueryProvider>
-                                    <Layout>{children}</Layout>
-                                </ReactQueryProvider>
-                            </LazorkitProvider>
-                        </JotaiProvider>
-                        {process.env.NODE_ENV === 'development' && (
-                            <div style={{ position: 'fixed', bottom: 16, right: 16, cursor: 'pointer', zIndex: 1000 }}>
-                                <Link href="/ui-components" title="Typography Test Page">
-                                    <BugIcon />
-                                </Link>
-                            </div>
-                        )}
-                    </ThemeProvider>
-                    <ToastContainer />
-                </ProgressProvider>
+            <body className={`${mulish.className} ${geistMono.variable} antialiased `}>
+                <main className="w-full overflow-x-hidden">
+                    <ProgressProvider>
+                        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+                            <JotaiProvider>
+                                <LazorkitProvider>
+                                    <ReactQueryProvider>
+                                        <Layout>{children}</Layout>
+                                    </ReactQueryProvider>
+                                </LazorkitProvider>
+                            </JotaiProvider>
+                            {process.env.NODE_ENV === 'development' && (
+                                <div style={{ position: 'fixed', bottom: 16, right: 16, cursor: 'pointer', zIndex: 1000 }}>
+                                    <Link href="/ui-components" title="Typography Test Page">
+                                        <BugIcon />
+                                    </Link>
+                                </div>
+                            )}
+                        </ThemeProvider>
+                        <ToastContainer />
+                    </ProgressProvider>
+                </main>
             </body>
         </html>
     );

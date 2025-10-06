@@ -14,7 +14,7 @@ import IconUSD from 'src/components/icons/IconUSD';
 import IconVND from 'src/components/icons/IconVND';
 import useTokenPrice from 'src/hooks/useTokenPrice';
 import { dataPools } from '../../data';
-import { usePasskeyConnected, usePasskeyConnectedValue } from 'src/jotai/connect-wallet/hooks';
+import { usePasskeyConnected } from 'src/jotai/connect-wallet/hooks';
 import { PasskeyData, useWallet } from '@lazorkit/wallet';
 import { iconMap } from 'crypto-icons/index';
 import { lazorkitProgram } from 'backend/_helper/const';
@@ -24,6 +24,13 @@ import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 import useFetchOrders from 'src/views/orders/useFetchOrders';
 import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 import { CreateOrderPaymentInput, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
+import BN from 'bn.js';
+import { AnchorProvider, Program, Wallet, Idl } from '@coral-xyz/anchor';
+import { publicClientSol } from 'src/constant';
+import { Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction, VersionedTransaction } from '@solana/web3.js';
+import useSmartWalletActive from 'src/hooks/useSmartWalletActive';
+import { atomWithStorage, createJSONStorage } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 export default function Subcribe() {
     const { id: idPool } = useParams<{ id: string }>();
@@ -44,9 +51,10 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
     const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'USD');
     const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
-    const [passkeyConnected, setPasskeyConnected] = usePasskeyConnected();
+    const { passkeyConnected } = usePasskeyConnected();
     const { smartWalletPubkey, wallet } = useWallet();
     const { refetch } = useFetchOrders(passkeyConnected?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
+    const { getSmartWallet } = useSmartWalletActive();
 
     function handleChangeAmountToken(value: string) {
         const amountToken = value;
@@ -77,32 +85,22 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             }
 
             let passkey: PasskeyData | null = null;
-            let smartWallet = '';
+            const getSmartWalletInfo = await getSmartWallet();
+            const smartWallet = getSmartWalletInfo?.smartWallet || '';
 
-            if (smartWalletPubkey) {
-                smartWallet = smartWalletPubkey.toString();
+            if (smartWallet) {
                 passkey = {
                     publicKey: wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : '',
                     credentialId: wallet ? wallet.credentialId : '',
                     isCreated: true,
-                    smartWallet: wallet ? wallet.smartWallet : '',
-                    smartWalletId: '',
+                    smartWalletAddress: smartWallet.toString(),
+                    smartWalletId: new BN('000000'), // Dummy id, not used
                 };
             } else {
                 passkey = passkeyConnected;
-                const getSmartWallet = await lazorkitProgram.getSmartWalletByPasskey(convertBase64ToArrayNumber(passkey?.publicKey || ''));
-                if (getSmartWallet.smartWallet) {
-                    toast.info('Found existing smart wallet for this passkey! Please connect smart wallet to continue.');
-                    return;
-                }
             }
 
             const slippage = 0.05; // 5%
-            // passkey = {
-            //     publicKey: 'A+eWPD8zgy9caOL5NC8+1wItIJ2LRhcxThmfI2oG4Ass',
-            //     credentialId: 'Uuy8LYTPorWb9Wj+y8APFg==',
-            //     isCreated: true,
-            // };
 
             const bodyData = {
                 id_pool: idPool,
@@ -125,7 +123,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     id: smartWallet,
                     account_id: passkey!.publicKey,
                     zip: passkey!.credentialId,
-                    phone: passkey!.smartWalletId,
+                    phone: passkey!.smartWalletId.toString(),
                 },
             } as OrderPaymentInput;
 
@@ -138,6 +136,11 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 },
                 body: JSON.stringify(bodyData),
             });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error response data:', errorData);
+                throw new Error(errorData.error || 'Failed to create order');
+            }
             const data = await response.json();
             toast.success('Order created! Redirecting to payment...');
             console.log('Response data:', data);
@@ -207,7 +210,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     <ButtonSubcribe onClick={subcribe} />
                 </div>
             </CardCustom>
-            {/* <TestGetPaymentStatus /> */}
+            <TestGetPaymentStatus />
         </div>
     );
 }
@@ -238,29 +241,59 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
     );
 }
 
+const safeStorage = {
+    getItem: (key: string) => {
+        if (typeof window === 'undefined') return null;
+        return localStorage.getItem(key);
+    },
+    setItem: (key: string, value: string) => {
+        if (typeof window !== 'undefined') localStorage.setItem(key, value);
+    },
+    removeItem: (key: string) => {
+        if (typeof window !== 'undefined') localStorage.removeItem(key);
+    },
+};
+
+const atomlocalPasskey = atomWithStorage(
+    'themealo',
+    'light',
+    createJSONStorage(() => safeStorage)
+);
+
 function TestGetPaymentStatus() {
     const {
         smartWalletPubkey,
         connect,
         connectPasskey,
         isConnected,
-        isSmartWalletReady,
+        isConnecting,
+        disconnect,
+        syncWalletStatus,
+        isLoading,
+        error,
         createSmartWallet,
-        checkSmartWalletByCredentialId,
         getSmartWalletByPasskey,
-        getCurrentSmartWallet,
-        getSmartWalletStatus,
-        buildDirectTransaction,
         buildSmartWalletTransaction,
-        buildTransaction,
         signAndSendTransaction,
+        isSigning,
         wallet,
     } = useWallet();
     const [paymentId, setPaymentId] = React.useState<string>('');
-    const passkeyConnectedValue = usePasskeyConnectedValue();
+    const { passkeyConnected } = usePasskeyConnected();
+    const localPasskey = useAtomValue(atomlocalPasskey);
+
+    async function testSyncWalletStatus() {
+        try {
+            const res = await syncWalletStatus();
+            console.log('syncWalletStatus success:', res);
+        } catch (error) {
+            console.error('Error syncWalletStatus:', error);
+        }
+    }
 
     function logs() {
-        console.log({ smartWalletPubkey, isConnected, wallet });
+        console.log('Local storage PUBLIC_KEY:', localPasskey);
+        console.log({ passkeyConnected, smartWalletPubkey, isConnected, wallet });
     }
     async function getStatus() {
         try {
@@ -279,36 +312,6 @@ function TestGetPaymentStatus() {
             console.log('data', data);
         } catch (error) {
             console.error('Error connect passkey:', error);
-        }
-    }
-
-    async function testSmartWalletStatus() {
-        try {
-            const status = await getSmartWalletStatus();
-            console.log('Smart wallet status:', status);
-        } catch (error) {
-            console.error('Error get smart wallet status:', error);
-        }
-    }
-
-    async function checkIsSmartWalletReady() {
-        try {
-            const isReady = await isSmartWalletReady();
-            console.log('Is smart wallet ready:', isReady);
-        } catch (error) {
-            console.error('Error check is smart wallet ready:', error);
-        }
-    }
-
-    async function testGetCurrentSmartWallet() {
-        try {
-            const response = await getCurrentSmartWallet();
-            console.log('Current smart wallet:', {
-                smartWallet: response.smartWallet?.toString(),
-                walletDevice: response.walletDevice?.toString(),
-            });
-        } catch (error) {
-            console.error('Error get current smart wallet:', error);
         }
     }
 
@@ -359,6 +362,37 @@ function TestGetPaymentStatus() {
         }
     }
 
+    async function testSignAndSend() {
+        // const provider = new AnchorProvider(publicClientSol, new Wallet(new Keypair()), { preflightCommitment: 'finalized' });
+
+        try {
+            if (!smartWalletPubkey) {
+                console.error('Please connect smart wallet first!');
+                return;
+            }
+            const ixs: TransactionInstruction[] = [];
+
+            const transferIx = SystemProgram.transfer({
+                fromPubkey: smartWalletPubkey,
+                toPubkey: new PublicKey('H5s5m3LDeBawe1NTNcNPjrhKKgnpSDmDRZsiL6pXk3wQ'),
+                lamports: 10_000_000,
+            });
+            ixs.push(transferIx);
+            const tx = await signAndSendTransaction(ixs);
+            console.log('signAndSendTransaction:', tx);
+        } catch (error) {
+            console.error('Error create payment test:', error);
+        }
+    }
+    async function checkSmartWalletIsCreated() {
+        try {
+            const response = await getSmartWalletByPasskey(wallet?.passkeyPubkey || []);
+            console.log('getSmartWalletByPasskey response data:', { smartwallet: response.smartWallet?.toString(), walletDevice: response.walletDevice?.toString() });
+        } catch (error) {
+            console.error('Error checkSmartWalletIsCreated:', error);
+        }
+    }
+
     return (
         <div className="mt-6 border border-red-700">
             <Input placeholder="Payment ID" value={paymentId} onChange={(e) => setPaymentId(e.target.value)} />
@@ -367,9 +401,18 @@ function TestGetPaymentStatus() {
                 Test create payment
             </Button>
 
+            <p>Check isLoading {isLoading ? 'true' : 'false'}</p>
+            <p>Check isConnecting {isConnecting ? 'true' : 'false'}</p>
+            <p>Check isConnected {isConnected ? 'true' : 'false'}</p>
+
+            <div className="mt-2">
+                <Button variant={'secondary'} onClick={testSyncWalletStatus}>
+                    syncWalletStatus()
+                </Button>
+            </div>
             <div className="mt-2">
                 <Button variant={'secondary'} onClick={logs}>
-                    Logs wallet
+                    Logs wallet variable
                 </Button>
             </div>
 
@@ -380,24 +423,23 @@ function TestGetPaymentStatus() {
             </div>
 
             <div className="mt-2">
-                <Button variant={'default'} onClick={testSmartWalletStatus}>
-                    getSmartWalletStatus()
-                </Button>
-            </div>
-            <div className="mt-2">
-                <Button variant={'default'} onClick={checkIsSmartWalletReady}>
-                    isSmartWalletReady()
-                </Button>
-            </div>
-            <div className="mt-2">
-                <Button variant={'default'} onClick={testGetCurrentSmartWallet}>
-                    getCurrentSmartWallet()
-                </Button>
-            </div>
-            <div>
                 <p>Smart wallet: {smartWalletPubkey?.toString() || 'null'}</p>
-                <p>Passkey connected: {passkeyConnectedValue?.publicKey || 'null'}</p>
+                <p>Passkey connected: {passkeyConnected?.publicKey || 'null'}</p>
                 <Button onClick={testConnect}>connect() - full flow smartwallet</Button>
+            </div>
+
+            <div className="mt-2">
+                <Button onClick={testSignAndSend}>{isSigning ? 'Signing.....' : 'Test sign and send ix'}</Button>
+            </div>
+
+            <div className="mt-2">
+                <Button onClick={checkSmartWalletIsCreated}>Check smart wallet is created</Button>
+            </div>
+
+            <div className="mt-2">
+                <Button variant={'destructive'} onClick={disconnect}>
+                    Disconnect()
+                </Button>
             </div>
         </div>
     );

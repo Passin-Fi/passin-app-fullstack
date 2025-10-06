@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
 // Tailwind CSS v4 default breakpoints
 // Reference: https://tailwindcss.com/docs/responsive-design
@@ -11,6 +11,9 @@ export const DEFAULT_BREAKPOINTS = {
 } as const;
 
 export type TailwindBreakpoint = keyof typeof DEFAULT_BREAKPOINTS | 'base';
+
+// Use layout effect on the client to update before paint; fall back to effect on SSR
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 function widthToBreakpoint(width: number): TailwindBreakpoint {
     if (width >= DEFAULT_BREAKPOINTS['2xl']) return '2xl';
@@ -26,16 +29,25 @@ function widthToBreakpoint(width: number): TailwindBreakpoint {
  * SSR-safe: returns false on the server and updates after mount.
  */
 export function useMediaQuery(query: string): boolean {
-    const getMatch = () => (typeof window !== 'undefined' ? window.matchMedia(query).matches : false);
-    const [matches, setMatches] = useState<boolean>(getMatch);
+    // Do not read window during initial render to avoid SSR/client mismatch
+    const [matches, setMatches] = useState<boolean>(false);
 
-    useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         if (typeof window === 'undefined') return;
         const mql = window.matchMedia(query);
+
         const handler = () => setMatches(mql.matches);
+        // Initialize immediately (before paint on client)
         handler();
-        mql.addEventListener?.('change', handler);
-        return () => mql.removeEventListener?.('change', handler);
+
+        // Support both modern and legacy APIs
+        if (mql.addEventListener) mql.addEventListener('change', handler);
+        else (mql as any).addListener?.(handler);
+
+        return () => {
+            if (mql.removeEventListener) mql.removeEventListener('change', handler);
+            else (mql as any).removeListener?.(handler);
+        };
     }, [query]);
 
     return matches;
@@ -58,22 +70,23 @@ export type UseBreakpointResult = {
  * Useful when you need JavaScript-controlled behavior by screen size.
  */
 export function useBreakpoint(): UseBreakpointResult {
-    const getSize = () => ({
-        width: typeof window !== 'undefined' ? window.innerWidth : 0,
-        height: typeof window !== 'undefined' ? window.innerHeight : 0,
-    });
+    // Initialize with 0 for SSR and first client render to ensure hydration matches
+    const [size, setSize] = useState({ width: 0, height: 0 });
 
-    const [size, setSize] = useState(getSize);
-
-    useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         if (typeof window === 'undefined') return;
         let raf = 0;
+
+        const read = () => ({ width: window.innerWidth, height: window.innerHeight });
         const onResize = () => {
             cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => setSize(getSize()));
+            raf = window.requestAnimationFrame(() => setSize(read()));
         };
+
+        // Set before first paint to minimize FOUC
+        setSize(read());
         window.addEventListener('resize', onResize);
-        onResize();
+
         return () => {
             cancelAnimationFrame(raf);
             window.removeEventListener('resize', onResize);
@@ -91,6 +104,7 @@ export function useBreakpoint(): UseBreakpointResult {
         };
     }, [size.width]);
 
+    // Keep semantics aligned with comments: mobile < md, tablet [md, lg), desktop >= lg
     const isMobile = helpers.down('md');
     const isTablet = helpers.between('md', 'lg');
     const isDesktop = helpers.up('lg');

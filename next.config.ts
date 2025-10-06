@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     reactStrictMode: false,
     eslint: { ignoreDuringBuilds: true },
     images: {
-        remotePatterns: [{ hostname: 'firebasestorage.googleapis.com', protocol: 'https' }],
+        remotePatterns: [{ hostname: 'crypto-images-4545f.web.app', protocol: 'https' }],
     },
     async redirects() {
         return [
