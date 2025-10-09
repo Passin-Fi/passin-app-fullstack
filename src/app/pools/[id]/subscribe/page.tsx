@@ -156,7 +156,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             <CardCustom>
                 <h4 className="text-center font-bold">Deposit in Pool {dataPools[idPool].name}</h4>
                 <div className="mt-4">
-                    <p className="muted">Enter amount</p>
+                    <p className="muted">Buy amount</p>
                     <Input
                         placeholder="0"
                         type="number"
@@ -172,7 +172,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     />
                 </div>
                 <div className="mt-4">
-                    <p className="muted">Spend</p>
+                    <p className="muted">Spend amount</p>
                     <Input
                         warpperClassName="!pr-0"
                         placeholder="0"
