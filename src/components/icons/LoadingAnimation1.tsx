@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { cn } from 'src/lib/utils';
 
 export interface LoadingAnimation1Props extends React.SVGProps<SVGSVGElement> {
     /** Override color (any valid CSS color). Falls back to currentColor + Tailwind text-primary if not provided. */
@@ -27,7 +28,7 @@ export const LoadingAnimation1 = React.forwardRef<SVGSVGElement, LoadingAnimatio
             aria-label="Loading"
             width={dimension}
             height={dimension}
-            className={`text-primary ${className}`.trim()}
+            className={cn(`text-primary`, className)}
             preserveAspectRatio="xMidYMid"
             style={finalStyle}
             {...rest}
