@@ -17,8 +17,8 @@ export default function PoolButtons() {
                             Redeem
                         </Button>
                         <Button className="flex-1">
-                            <Link className="w-full" href={`/pools/${params.id}/subcribe`}>
-                                Subcribe
+                            <Link className="w-full" href={`/pools/${params.id}/subscribe`}>
+                                Subscribe
                             </Link>
                         </Button>
                     </div>

@@ -25,7 +25,7 @@ export async function getOrdersCollection(): Promise<Collection<OrderDoc>> {
                 payment: { bsonType: ['object'] },
                 status: { bsonType: 'string', enum: Object.values(OrderStatus) },
                 send_token_tx_hash: { bsonType: 'string' },
-                subcribe_to_pool_tx_hash: { bsonType: 'string' },
+                subscribe_to_pool_tx_hash: { bsonType: 'string' },
                 created_at: { bsonType: 'date' },
                 updated_at: { bsonType: 'date' },
             },

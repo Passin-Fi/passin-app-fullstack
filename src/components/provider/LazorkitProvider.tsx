@@ -7,7 +7,7 @@ export default function LazorkitProvider({ children }: { children: React.ReactNo
     return (
         <LazorkitWalletProvider
             rpcUrl={rpcDevnet}
-            paymasterUrl="https://kora-9do3.onrender.com"
+            paymasterUrl="https://kora.lazorkit.com"
             portalUrl="https://portal.lazor.sh"
 
             // rpcUrl={process.env.LAZORKIT_RPC_URL}

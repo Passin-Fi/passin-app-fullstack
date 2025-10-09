@@ -37,7 +37,7 @@ const stepSendTokenToSmartWallet = (smartWallet: string) => ({
     ),
 });
 const stepSubToPool = (poolName: string, txHash?: string) => ({
-    title: 'Subcrib to Pools',
+    title: 'Subscribe to Pools',
     description: (
         <p className="text-inherit text-sm">
             Deposit tokens to the pool. Pool: {poolName}
@@ -107,18 +107,18 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
     useEffect(() => {
         const o = orderState.order;
         const steps: StepperProps['steps'] = [];
-        if (o.request.shipping.id) {
+        if (o.request?.shipping?.id) {
             if (orderState.status === OrderStatus.CreateAndSendTokenSuccess) {
-                steps.push(stepPayment(), stepCreateAndSendToken(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subcribe_to_pool_tx_hash));
+                steps.push(stepPayment(), stepCreateAndSendToken(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subscribe_to_pool_tx_hash));
             } else {
-                steps.push(stepPayment(), stepSendTokenToSmartWallet(o.request.shipping.id), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subcribe_to_pool_tx_hash));
+                steps.push(stepPayment(), stepSendTokenToSmartWallet(o.request?.shipping?.id), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subscribe_to_pool_tx_hash));
             }
         } else {
-            steps.push(stepPayment(), stepCreateAndSendToken(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subcribe_to_pool_tx_hash));
+            steps.push(stepPayment(), stepCreateAndSendToken(o.payment.shipping.smart_wallet_address), stepSubToPool(poolInfo?.name || 'Unknown Pool', o.subscribe_to_pool_tx_hash));
         }
         setStepData((prev) => ({ ...prev, steps }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [orderState.order.request.shipping.id, orderState.status, poolInfo?.name]);
+    }, [orderState.order?.request?.shipping?.id, orderState.status, poolInfo?.name]);
 
     // Map status -> step
     useEffect(() => {
@@ -149,7 +149,7 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
             case OrderStatus.TokenSending:
                 updateStep(1, false);
                 break;
-            case OrderStatus.SubcribeToPoolSuccess:
+            case OrderStatus.SubscribeToPoolSuccess:
                 updateStep(3, true);
                 break;
         }
@@ -186,7 +186,7 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
                     s.status === OrderStatus.PaymentCancel ||
                     s.status === OrderStatus.CreateAndSendTokenFail ||
                     s.status === OrderStatus.TokenSendFail ||
-                    s.status === OrderStatus.SubcribeToPoolSuccess
+                    s.status === OrderStatus.SubscribeToPoolSuccess
                 ) {
                     stop = true;
                     if (intervalId) clearInterval(intervalId);
@@ -212,9 +212,9 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
     const hasSubscribedRef = useRef(false);
     const walletReadyRef = useRef(false);
 
-    const subcribeToPool = async () => {
+    const subscribeToPool = async () => {
         if (!smartWalletPubkey) return;
-        console.log('Start subcribe to pool ........');
+        console.log('Start subscribe to pool ........');
         console.log({ smartWalletPubkey, wallet });
         try {
             isSubscribingRef.current = true;
@@ -229,14 +229,14 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
             const updatedb = await fetch(`/api/orders`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reference_id: orderState.order.reference_id, subcribe_to_pool_tx_hash: tx }),
+                body: JSON.stringify({ reference_id: orderState.order.reference_id, subscribe_to_pool_tx_hash: tx }),
             });
-            console.log('Updated order after subcribe to pool:', await updatedb.json());
-            toast.success('Subcribed to pool successfully');
+            console.log('Updated order after subscribe to pool:', await updatedb.json());
+            toast.success('Subscribed to pool successfully');
             hasSubscribedRef.current = true;
         } catch (error) {
-            console.error('Error subcribe to pool:', error);
-            toast.error('Error subcribe to pool: ' + (error as Error).message);
+            console.error('Error subscribe to pool:', error);
+            toast.error('Error subscribe to pool: ' + (error as Error).message);
         } finally {
             isSubscribingRef.current = false;
         }
@@ -265,7 +265,7 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
         if (!shouldSubscribe) return;
         if (typeof signAndSendTransaction !== 'function') return;
         if (hasSubscribedRef.current || isSubscribingRef.current) return;
-        subcribeToPool();
+        subscribeToPool();
         setShouldSubscribe(false);
     }, [shouldSubscribe, signAndSendTransaction]);
 
@@ -365,7 +365,7 @@ export function OrderInformationOld({ dataOrder, isSuccess }: { dataOrder: Order
     }, [stepData.currentStep, stepData.isProcessDone, hasSubscribed, shouldSubscribe, checkConditionSmartWallet]);
 
     // 2) Subscribe when signAndSendTransaction is ready (it may change identity after sync)
-    const subcribeToPool = useCallback(async () => {
+    const subscribeToPool = useCallback(async () => {
         if (!smartWalletPubkey) return;
         try {
             isSubscribingRef.current = true;
@@ -381,14 +381,14 @@ export function OrderInformationOld({ dataOrder, isSuccess }: { dataOrder: Order
             const updatedb = await fetch(`/api/orders`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reference_id: dataOrder.reference_id, subcribe_to_pool_tx_hash: tx }),
+                body: JSON.stringify({ reference_id: dataOrder.reference_id, subscribe_to_pool_tx_hash: tx }),
             });
-            console.log('Updated order after subcribe to pool:', await updatedb.json());
-            toast.success('Subcribed to pool successfully');
+            console.log('Updated order after subscribe to pool:', await updatedb.json());
+            toast.success('Subscribed to pool successfully');
             setHasSubscribed(true);
         } catch (error) {
-            console.error('Error subcribe to pool:', error);
-            toast.error('Error subcribe to pool: ' + (error as Error).message);
+            console.error('Error subscribe to pool:', error);
+            toast.error('Error subscribe to pool: ' + (error as Error).message);
         } finally {
             isSubscribingRef.current = false;
         }
@@ -398,10 +398,10 @@ export function OrderInformationOld({ dataOrder, isSuccess }: { dataOrder: Order
         if (!shouldSubscribe) return;
         if (typeof signAndSendTransaction !== 'function') return; // wait until hook refreshes
         if (hasSubscribed || isSubscribingRef.current) return;
-        subcribeToPool();
-        // we keep shouldSubscribe true until subcribeToPool runs once; then reset
+        subscribeToPool();
+        // we keep shouldSubscribe true until subscribeToPool runs once; then reset
         setShouldSubscribe(false);
-    }, [shouldSubscribe, signAndSendTransaction, hasSubscribed, subcribeToPool]);
+    }, [shouldSubscribe, signAndSendTransaction, hasSubscribed, subscribeToPool]);
 
     // Idempotent step updater to avoid re-render storms when polling sets the same state
     const updateStep = useCallback((nextStep: number, nextDone: boolean) => {
@@ -471,7 +471,7 @@ export function OrderInformationOld({ dataOrder, isSuccess }: { dataOrder: Order
                             updateStep(2, false);
                             // const checkReadySubToPool = await checkConditionSmartWallet();
                             // if (checkReadySubToPool) {
-                            //     await subcribeToPool();
+                            //     await subscribeToPool();
                             //     return; // stop checking tam thoi
                             // }
                             await sleep(1500); // wait for db update
@@ -487,7 +487,7 @@ export function OrderInformationOld({ dataOrder, isSuccess }: { dataOrder: Order
                             updateStep(2, false);
                             // const checkReadySubToPool2 = await checkConditionSmartWallet();
                             // if (checkReadySubToPool2) {
-                            //     await subcribeToPool();
+                            //     await subscribeToPool();
                             //     return; // stop checking tam thoi
                             // }
                             // return; // stop checking
@@ -496,7 +496,7 @@ export function OrderInformationOld({ dataOrder, isSuccess }: { dataOrder: Order
                         case OrderStatus.TokenSendFail:
                             updateStep(1, true);
                             return; // stop checking
-                        case OrderStatus.SubcribeToPoolSuccess:
+                        case OrderStatus.SubscribeToPoolSuccess:
                             updateStep(3, true);
                             return; // done
                     }
