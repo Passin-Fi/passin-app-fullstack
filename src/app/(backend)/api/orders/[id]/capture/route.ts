@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             currentStatus === OrderStatus.CreateAndSendTokenFail ||
             currentStatus === OrderStatus.TokenSendSuccess ||
             currentStatus === OrderStatus.TokenSendFail ||
-            currentStatus === OrderStatus.SubcribeToPoolSuccess
+            currentStatus === OrderStatus.SubscribeToPoolSuccess
         ) {
             return NextResponse.json(existingOrder);
         }

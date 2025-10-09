@@ -26,8 +26,8 @@ export default function CardPoolInfoOverview({ dataPool }: { dataPool: TypePool 
                 </div>
 
                 <Button className="w-[93px] h-[32px]">
-                    <Link className="w-full" href={`/pools/${dataPool.id}/subcribe`}>
-                        Subcribe
+                    <Link className="w-full" href={`/pools/${dataPool.id}/subscribe`}>
+                        Subscribe
                     </Link>
                 </Button>
             </div>

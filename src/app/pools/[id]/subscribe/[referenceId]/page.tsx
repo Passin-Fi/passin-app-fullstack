@@ -34,7 +34,7 @@ async function fetchOrder(referenceId: string) {
     }
 }
 
-export default async function ResultOrderPayment({ params, searchParams }: PageProps<'/pools/[id]/subcribe/[referenceId]'>) {
+export default async function ResultOrderPayment({ params, searchParams }: PageProps<'/pools/[id]/subscribe/[referenceId]'>) {
     const [{ referenceId }, search] = await Promise.all([params, searchParams]);
     if (!referenceId) return <NotFoundOrder />;
 

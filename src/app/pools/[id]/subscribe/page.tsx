@@ -32,7 +32,7 @@ import useSmartWalletActive from 'src/hooks/useSmartWalletActive';
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { useAtomValue } from 'jotai';
 
-export default function Subcribe() {
+export default function Subscribe() {
     const { id: idPool } = useParams<{ id: string }>();
 
     if (!dataPools[idPool]) {
@@ -77,7 +77,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
         }
     }
 
-    async function subcribe() {
+    async function subscribe() {
         try {
             if (!smartWalletPubkey && !passkeyConnected) {
                 toast.error('Please login first!');
@@ -108,7 +108,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 order_lines: [
                     {
                         key: dataPools[idPool].tokenDeposit.address,
-                        title: `Subcribe in Pool ${dataPools[idPool].name}`,
+                        title: `Subscribe in Pool ${dataPools[idPool].name}`,
                         quantity: parseFloat(inputValue.amountToken),
                         unit_price: parseFloat(priceTokenInUSD.data ? priceTokenInUSD.data.rate.toFixed(4) : '0'),
                         min_receive_quantity: parseFloat((parseFloat(inputValue.amountToken) * (1 - slippage)).toFixed(0)),
@@ -147,8 +147,8 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             refetch();
             window.location.href = data.pay_now_url;
         } catch (error) {
-            console.error('Error subcribe:', error);
-            toast.error('Error subcribe!' + (error instanceof Error ? ` ${error.message}` : ''));
+            console.error('Error subscribe:', error);
+            toast.error('Error subscribe!' + (error instanceof Error ? ` ${error.message}` : ''));
         }
     }
     return (
@@ -204,10 +204,10 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                             Cancel
                         </Link>
                     </Button>
-                    {/* <Button className="flex-1" onClick={subcribe}>
-                        Subcribe
+                    {/* <Button className="flex-1" onClick={subscribe}>
+                        Subscribe
                     </Button> */}
-                    <ButtonSubcribe onClick={subcribe} />
+                    <ButtonSubscribe onClick={subscribe} />
                 </div>
             </CardCustom>
             {process.env.NODE_ENV === 'development' && <TestGetPaymentStatus />}
@@ -215,7 +215,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
     );
 }
 
-function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
+function ButtonSubscribe({ onClick }: { onClick: () => Promise<void> }) {
     const [loading, setLoading] = React.useState(false);
 
     async function handleClick() {
@@ -223,7 +223,7 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
         try {
             await onClick();
         } catch (error) {
-            console.error('Error in ButtonSubcribe:', error);
+            console.error('Error in ButtonSubscribe:', error);
         } finally {
             setLoading(false);
         }
@@ -235,7 +235,7 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
                     <LoadingAnimation1 className="text-foreground" size={22} /> Processing...
                 </>
             ) : (
-                'Subcribe'
+                'Subscribe'
             )}
         </Button>
     );

@@ -28,8 +28,8 @@ export async function POST(request: Request) {
         try {
             response = await postCreateOrderPayment({
                 currency: 'USD',
-                cancel_url: `${origin}/pools/${reqBody.id_pool}/subcribe/${reqBody.reference_id}?status=cancel`,
-                success_url: `${origin}/pools/${reqBody.id_pool}/subcribe/${reqBody.reference_id}?status=success`,
+                cancel_url: `${origin}/pools/${reqBody.id_pool}/subscribe/${reqBody.reference_id}?status=cancel`,
+                success_url: `${origin}/pools/${reqBody.id_pool}/subscribe/${reqBody.reference_id}?status=success`,
                 ...reqBody,
             });
         } catch (apiErr) {
@@ -95,27 +95,27 @@ export async function GET(request: Request) {
 }
 
 // PATCH /api/orders
-// Body: { reference_id: string; subcribe_to_pool_tx_hash: string }
+// Body: { reference_id: string; subscribe_to_pool_tx_hash: string }
 // Behavior: Client can only provide the tx hash of subscribing tokens to the pool.
-// When provided, we mark status = SubcribeToPoolSuccess.
+// When provided, we mark status = SubscribeToPoolSuccess.
 export async function PATCH(request: Request) {
     try {
         const body = await request.json();
         const referenceId = body?.reference_id as string | undefined;
-        const subcribeToPoolTxHash = body?.subcribe_to_pool_tx_hash as string | undefined;
+        const subscribeToPoolTxHash = body?.subscribe_to_pool_tx_hash as string | undefined;
 
         if (!referenceId) {
             return NextResponse.json({ error: 'reference_id is required' }, { status: 400 });
         }
-        if (typeof subcribeToPoolTxHash !== 'string' || !subcribeToPoolTxHash.trim()) {
-            return NextResponse.json({ error: 'subcribe_to_pool_tx_hash is required' }, { status: 400 });
+        if (typeof subscribeToPoolTxHash !== 'string' || !subscribeToPoolTxHash.trim()) {
+            return NextResponse.json({ error: 'subscribe_to_pool_tx_hash is required' }, { status: 400 });
         }
 
         const orders = await getOrdersCollection();
         const update: Partial<OrderDoc> & { updated_at: Date } = { updated_at: new Date() };
         // Only when client confirms pool subscribe tx is finalized
-        update.subcribe_to_pool_tx_hash = subcribeToPoolTxHash.trim();
-        update.status = OrderStatus.SubcribeToPoolSuccess;
+        update.subscribe_to_pool_tx_hash = subscribeToPoolTxHash.trim();
+        update.status = OrderStatus.SubscribeToPoolSuccess;
 
         const upd = await orders.updateOne({ reference_id: referenceId }, { $set: update });
         if (upd.matchedCount === 0) {
