@@ -32,11 +32,15 @@ export default function Account() {
                                 if (smartWalletPubkey) {
                                     copyToClipboard(smartWalletPubkey.toString());
                                 } else if (passkeyConnected) {
-                                    copyToClipboard(passkeyConnected.publicKey);
+                                    copyToClipboard(passkeyConnected.passkeyAddress);
                                 }
                             }}
                         >
-                            {smartWalletPubkey ? formatAddress(smartWalletPubkey.toString(), 10, 7) : passkeyConnected ? formatAddress(passkeyConnected.publicKey.toString()) : 'Sign in with passkeys'}
+                            {smartWalletPubkey
+                                ? formatAddress(smartWalletPubkey.toString(), 10, 7)
+                                : passkeyConnected
+                                ? formatAddress(passkeyConnected.passkeyAddress.toString())
+                                : 'Sign in with passkeys'}
                         </p>
                     </div>
                 </div>

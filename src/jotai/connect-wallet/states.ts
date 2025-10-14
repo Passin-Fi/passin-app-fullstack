@@ -1,6 +1,6 @@
 'use client';
 
-import { PasskeyData } from '@lazorkit/wallet';
 import { atom } from 'jotai';
+import { PasskeyDataReadable } from 'src/types';
 
-export const passkeysConnected = atom<PasskeyData | null>(null);
+export const passkeysConnected = atom<PasskeyDataReadable | null>(null);
