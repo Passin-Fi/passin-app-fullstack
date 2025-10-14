@@ -9,14 +9,21 @@ import { usePasskeyConnected } from 'src/jotai/connect-wallet/hooks';
 import { formatAddress } from 'src/utils/format';
 
 export default function ButtonConnectWallet() {
-    const { connectPasskey, isConnecting, isLoading, smartWalletPubkey, wallet, isConnected, signAndSendTransaction, createSmartWallet, buildSmartWalletTransaction, connect, disconnect } =
-        useWallet();
+    const { connectPasskey, isConnecting, isLoading, smartWalletPubkey, wallet, isConnected, signAndSendTransaction, connect, disconnect } = useWallet();
     const { passkeyConnected } = usePasskeyConnected();
     const router = useRouter();
 
     async function getPasskeysSelect() {
         try {
             const data = await connectPasskey();
+            console.log(data);
+            console.log('data connect passkey', {
+                passkeyAddress: data.publicKey.toString(),
+                credentialId: data.credentialId,
+                walletId: data.walletId.toString() || '0',
+                smartWalletAddress: data.smartWalletAddress.toString(),
+                isCreated: data.isCreated,
+            });
         } catch (error) {
             console.error('Error creating passkey-only wallet:', error);
         }
@@ -49,7 +56,7 @@ export default function ButtonConnectWallet() {
     if (passkeyConnected) {
         return (
             <Button variant={'secondary'} onClick={() => router.push('/account')}>
-                {formatAddress(passkeyConnected.publicKey, 5, 4)}
+                {formatAddress(passkeyConnected.passkeyAddress, 5, 4)}
             </Button>
         );
     }

@@ -4,9 +4,10 @@ import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 import { getOrdersCollection } from 'backend/_lib/collections';
 import { OrderStatus } from 'backend/_types/order';
 import { CreateOrderPaymentResponse } from 'src/services/payment/create-payment-order';
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { checkSmartWallet } from 'backend/_helper/check_smartwallet_by_passkey';
-import { BN } from 'bn.js';
+import BigNumber from 'bignumber.js';
+import { BN } from '@coral-xyz/anchor';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -150,10 +151,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                         let createWallet = await createSmartWalletAndSendToken(
                             {
                                 credentialId: paymenData.shipping.passkey!.credential_id,
-                                publicKey: paymenData.shipping.passkey!.public_key,
-                                isCreated: true,
-                                smartWalletAddress: paymenData.shipping.smart_wallet_address || '',
-                                smartWalletId: new BN(paymenData.shipping.smart_wallet_id),
+                                passkeyAddress: paymenData.shipping.passkey!.public_key,
+                                smartWalletAddress: paymenData?.shipping?.smart_wallet_address || '',
+                                walletId: paymenData?.shipping?.smart_wallet_id || '0',
                             },
                             new PublicKey(paymenData.order_lines.key),
                             // paymenData.order_lines.quantity

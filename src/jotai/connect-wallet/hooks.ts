@@ -1,7 +1,6 @@
 'use client';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { passkeysConnected } from './states';
-import BN from 'bn.js';
 import { useWallet } from '@lazorkit/wallet';
 import { useEffect } from 'react';
 
@@ -12,7 +11,7 @@ export function usePasskeyConnected() {
     const refetch = () => {
         const localStoragePublicKey = localStorage.getItem('PUBLIC_KEY');
         const localStorageCredentialId = localStorage.getItem('CREDENTIAL_ID');
-        const localStorageSmartWalletId = localStorage.getItem('SMART_WALLET_ID');
+        const localStorageSmartWalletId = localStorage.getItem('WALLET_ID');
         const localStorageSmartWalletAddress = localStorage.getItem('SMART_WALLET_ADDRESS');
         if (!localStoragePublicKey || !localStorageCredentialId || !localStorageSmartWalletId) {
             setPasskey(null);
@@ -20,11 +19,10 @@ export function usePasskeyConnected() {
         }
 
         setPasskey({
-            publicKey: localStoragePublicKey,
+            passkeyAddress: localStoragePublicKey,
             credentialId: localStorageCredentialId,
-            smartWalletId: new BN(localStorageSmartWalletId || '0'),
+            walletId: localStorageSmartWalletId || '0',
             smartWalletAddress: localStorageSmartWalletAddress || '',
-            isCreated: true,
         });
     };
 

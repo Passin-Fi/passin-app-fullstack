@@ -1,8 +1,9 @@
 import { useWallet } from '@lazorkit/wallet';
+import { checkSmartWallet } from 'backend/_helper/check_smartwallet_by_passkey';
 import { useEffect, useState } from 'react';
 
 export default function useSmartWalletActive() {
-    const { getSmartWalletByPasskey, wallet } = useWallet();
+    const { wallet } = useWallet();
     const [isActive, setSmartWalletActive] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -13,7 +14,7 @@ export default function useSmartWalletActive() {
                 walletDevice: null,
             };
         }
-        return await getSmartWalletByPasskey(wallet.passkeyPubkey);
+        return await checkSmartWallet(wallet.passkeyPubkey);
     }
     async function checkSmartWalletActive() {
         setLoading(true);
@@ -23,7 +24,7 @@ export default function useSmartWalletActive() {
                 setLoading(false);
                 return false;
             }
-            const smartWallet = await getSmartWalletByPasskey(wallet.passkeyPubkey);
+            const smartWallet = await checkSmartWallet(wallet.passkeyPubkey);
             setSmartWalletActive(!!smartWallet.smartWallet);
             setLoading(false);
             return !!smartWallet.smartWallet;
@@ -36,7 +37,7 @@ export default function useSmartWalletActive() {
     }
     useEffect(() => {
         checkSmartWalletActive();
-    }, [wallet?.passkeyPubkey, getSmartWalletByPasskey]);
+    }, [wallet?.passkeyPubkey]);
     return {
         isFetchingSmartWalletStatus: loading,
         isSmartWalletActive: isActive,

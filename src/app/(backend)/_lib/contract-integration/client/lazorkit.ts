@@ -18,7 +18,7 @@ import { DefaultPolicyClient } from './defaultPolicy';
 import { buildCallPolicyMessage, buildChangePolicyMessage, buildExecuteMessage, buildCreateChunkMessage } from '../messages';
 import { Buffer } from 'buffer';
 import { buildPasskeyVerificationInstruction, convertPasskeySignatureToInstructionArgs } from '../auth';
-import { buildTransaction, buildVersionedTransaction, buildLegacyTransaction, combineInstructionsWithAuth } from '../transaction';
+import { buildTransaction, combineInstructionsWithAuth, calculateVerifyInstructionIndex } from '../transaction';
 import base58 from 'bs58';
 
 global.Buffer = Buffer;
@@ -452,7 +452,7 @@ export class LazorkitClient {
         const cfg = await this.getSmartWalletConfigData(smartWallet);
         const chunk = this.getChunkPubkey(smartWallet, cfg.lastNonce.sub(new BN(1)));
 
-        const vaultIndex = await this.getChunkData(chunk).then((d) => d.vaultIndex);
+        const chunkData = await this.getChunkData(chunk);
 
         // Prepare CPI data and split indices
         const instructionDataList = cpiInstructions.map((ix) => Buffer.from(Array.from(ix.data)));
@@ -476,9 +476,9 @@ export class LazorkitClient {
                 smartWallet,
                 smartWalletConfig: this.getSmartWalletConfigDataPubkey(smartWallet),
                 referral: await this.getReferralAccount(smartWallet),
-                lazorkitVault: this.getLazorkitVaultPubkey(vaultIndex), // Will be updated based on session
+                lazorkitVault: this.getLazorkitVaultPubkey(chunkData.vaultIndex), // Will be updated based on session
                 chunk,
-                sessionRefund: payer,
+                sessionRefund: chunkData.rentRefundAddress,
                 systemProgram: SystemProgram.programId,
             })
             .remainingAccounts(allAccountMetas)
@@ -606,8 +606,7 @@ export class LazorkitClient {
         const smartWallet = this.getSmartWalletPubkey(smartWalletId);
         const walletDevice = this.getWalletDevicePubkey(smartWallet, params.passkeyPublicKey);
 
-        // @ts-ignore
-        let policyInstruction = await this.defaultPolicyProgram.buildInitPolicyIx(params.smartWalletId, params.passkeyPublicKey, smartWallet, walletDevice);
+        let policyInstruction = await this.defaultPolicyProgram.buildInitPolicyIx(smartWalletId, params.passkeyPublicKey, smartWallet, walletDevice);
 
         if (params.policyInstruction) {
             policyInstruction = params.policyInstruction;
@@ -661,7 +660,7 @@ export class LazorkitClient {
             params.smartWallet,
             {
                 ...signatureArgs,
-                verifyInstructionIndex: 0,
+                verifyInstructionIndex: calculateVerifyInstructionIndex(options.computeUnitLimit),
                 splitIndex: policyInstruction.keys.length,
                 policyData: policyInstruction.data,
                 cpiData: params.cpiInstruction.data,
@@ -699,7 +698,7 @@ export class LazorkitClient {
                       }
                     : null,
                 policyData: params.policyInstruction.data,
-                verifyInstructionIndex: 0,
+                verifyInstructionIndex: calculateVerifyInstructionIndex(options.computeUnitLimit),
                 timestamp: params.timestamp,
                 vaultIndex: getVaultIndex(params.vaultIndex, () => this.generateVaultIndex()),
                 smartWalletIsSigner: params.smartWalletIsSigner === true,
@@ -727,7 +726,7 @@ export class LazorkitClient {
             params.smartWallet,
             {
                 ...signatureArgs,
-                verifyInstructionIndex: 0,
+                verifyInstructionIndex: calculateVerifyInstructionIndex(options.computeUnitLimit),
                 destroyPolicyData: params.destroyPolicyInstruction.data,
                 initPolicyData: params.initPolicyInstruction.data,
                 splitIndex: (params.newWalletDevice ? 1 : 0) + params.destroyPolicyInstruction.keys.length,
@@ -788,7 +787,7 @@ export class LazorkitClient {
             {
                 ...signatureArgs,
                 policyData: policyInstruction?.data || Buffer.alloc(0),
-                verifyInstructionIndex: 0,
+                verifyInstructionIndex: calculateVerifyInstructionIndex(options.computeUnitLimit),
                 timestamp: params.timestamp || new BN(Math.floor(Date.now() / 1000)),
                 cpiHash: Array.from(cpiHash),
                 vaultIndex: getVaultIndex(params.vaultIndex, () => this.generateVaultIndex()),
@@ -883,7 +882,7 @@ export class LazorkitClient {
                 const smartWalletConfig = await this.getSmartWalletConfigData(smartWallet);
 
                 const timestamp = new BN(Math.floor(Date.now() / 1000));
-                // @ts-ignore
+                //@ts-ignore
                 message = buildCreateChunkMessage(payer, smartWallet, smartWalletConfig.lastNonce, timestamp, policyInstruction, cpiInstructions);
                 break;
             }
