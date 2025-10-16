@@ -14,6 +14,7 @@ import ErrorAnimationIcon from 'src/components/icons/ErrorAnimationIcon';
 import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 import SuccessAnimationIcon from 'src/components/icons/SuccessAnimationIcon';
 import Stepper, { StepperProps } from 'src/components/stepper/Stepper';
+import { SolanaContractJupLend } from 'src/contracts/class/jup_lend/SolanaContractJupLend';
 import { cn } from 'src/lib/utils';
 import { BN, sleep } from 'src/utils';
 import { formatAddress, formatNumber } from 'src/utils/format';
@@ -225,14 +226,20 @@ function OrderView({ dataOrder, isSuccessPayment, wallet }: { dataOrder: OrderDo
         }
         try {
             isSubscribingRef.current = true;
-            const ixs: TransactionInstruction[] = [];
-            const transferIx = SystemProgram.transfer({
-                fromPubkey: smartWallet.smartWallet,
-                toPubkey: new PublicKey('H5s5m3LDeBawe1NTNcNPjrhKKgnpSDmDRZsiL6pXk3wQ'),
-                lamports: 10_000_000,
+            // const ixs: TransactionInstruction[] = [];
+            // const transferIx = SystemProgram.transfer({
+            //     fromPubkey: smartWallet.smartWallet,
+            //     toPubkey: new PublicKey('H5s5m3LDeBawe1NTNcNPjrhKKgnpSDmDRZsiL6pXk3wQ'),
+            //     lamports: 10_000_000,
+            // });
+            // ixs.push(transferIx);
+            const contractJupLend = new SolanaContractJupLend();
+            const jupLendDepositIx = await contractJupLend.depositToJupLend({
+                smartWallet: smartWallet.smartWallet,
+                token: poolInfo.tokenDeposit,
+                amount: 1,
             });
-            ixs.push(transferIx);
-            const tx = await signAndSendTransaction(ixs);
+            const tx = await signAndSendTransaction(jupLendDepositIx);
             const updatedb = await fetch(`/api/orders`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
