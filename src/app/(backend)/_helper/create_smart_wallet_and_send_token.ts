@@ -37,7 +37,7 @@ export async function createSmartWalletAndSendToken(
                 credentialId,
                 policyData: policyInstruction.data,
                 walletId: smartWalletIdBn,
-                amount: new BN(0.00342432 * LAMPORTS_PER_SOL),
+                amount: new BN((0.00342432 + 0.00503928) * LAMPORTS_PER_SOL),
                 referralAddress: null,
                 vaultIndex: null,
             };
