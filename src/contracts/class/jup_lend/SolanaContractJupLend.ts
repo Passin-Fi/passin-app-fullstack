@@ -2,7 +2,7 @@ import { idlJupLend, IdlJupLend } from 'src/contracts/idl/JupLend';
 import { SolanaContractAbstract } from '../SolanaContractAbstract';
 import { ctrAdsSolana } from 'src/contracts/ctrAdsSolana';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { getAccount, getAssociatedTokenAddressSync, getMint, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BN as BNAnchor } from '@coral-xyz/anchor';
 import { ASSOCIATED_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token';
 import { SolanaEcosystemTokenInfo } from 'src/token-info/solana-ecosystem/SolanaEcosystemTokenInfo';
@@ -42,6 +42,22 @@ export class SolanaContractJupLend extends SolanaContractAbstract<IdlJupLend> {
         super(ctrAdsSolana.jupiterLendingProgram, idlJupLend);
     }
 
+    getExchangeRate = async ({ token }: { token: SolanaEcosystemTokenInfo }) => {
+        const tokenMint = new PublicKey(token.address);
+        return (await this.program.account.lending.fetch(JUPITER_LEND_ACCOUNTS.lending(tokenMint))).tokenExchangePrice;
+    };
+
+    getFTokenTotalSupply = async ({ token }: { token: SolanaEcosystemTokenInfo }) => {
+        const tokenMint = new PublicKey(token.address);
+        return (await getMint(this.provider.connection, JUPITER_LEND_ACCOUNTS.fTokenMint(tokenMint))).supply;
+    };
+
+    getUserFTokenBalance = async (data: { smartWallet: PublicKey; token: SolanaEcosystemTokenInfo }) => {
+        const { smartWallet, token } = data;
+        const tokenMint = new PublicKey(token.address);
+        return (await getAccount(this.provider.connection, getAssociatedTokenAddressSync(JUPITER_LEND_ACCOUNTS.fTokenMint(tokenMint), smartWallet, true))).amount;
+    };
+
     depositToJupLend = async (data: { smartWallet: PublicKey; token: SolanaEcosystemTokenInfo; amount: number }) => {
         const { smartWallet, token, amount } = data;
         const tokenMint = new PublicKey(token.address);
@@ -53,7 +69,7 @@ export class SolanaContractJupLend extends SolanaContractAbstract<IdlJupLend> {
                         .toFixed(0)
                 )
             )
-            .accounts({
+            .accountsStrict({
                 signer: smartWallet,
                 depositorTokenAccount: getAssociatedTokenAddressSync(tokenMint, smartWallet, true),
                 recipientTokenAccount: getAssociatedTokenAddressSync(JUPITER_LEND_ACCOUNTS.fTokenMint(tokenMint), smartWallet, true),
