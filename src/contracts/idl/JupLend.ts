@@ -12,7 +12,6 @@ export type IdlJupLend = {
         spec: '0.1.0';
         description: 'Created with Anchor';
     };
-    docs: ['Anchor CPI crate generated from lending v0.1.0 using [anchor-gen](https://crates.io/crates/anchor-gen) v0.4.1.'];
     instructions: [
         {
             name: 'deposit';
@@ -26,13 +25,54 @@ export type IdlJupLend = {
                 {
                     name: 'depositorTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'lendingAdmin';
@@ -44,6 +84,7 @@ export type IdlJupLend = {
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -67,6 +108,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -76,9 +118,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -87,6 +131,7 @@ export type IdlJupLend = {
                     type: 'u64';
                 }
             ];
+            returns: 'u64';
         },
         {
             name: 'depositWithMinAmountOut';
@@ -100,13 +145,54 @@ export type IdlJupLend = {
                 {
                     name: 'depositorTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'lendingAdmin';
@@ -118,6 +204,7 @@ export type IdlJupLend = {
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -141,6 +228,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -150,9 +238,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -181,18 +271,67 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['tokenReservesLiquidity'];
                 },
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const';
+                                value: [102, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116];
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                    };
                 },
                 {
                     name: 'metadataAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const';
+                                value: [109, 101, 116, 97, 100, 97, 116, 97];
+                            },
+                            {
+                                kind: 'const';
+                                value: [11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70];
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70];
+                        };
+                    };
                 },
                 {
                     name: 'lending';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const';
+                                value: [108, 101, 110, 100, 105, 110, 103];
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                    };
                 },
                 {
                     name: 'tokenReservesLiquidity';
@@ -202,15 +341,19 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 },
                 {
-                    name: 'sysvarInstruction';
+                    name: 'SysvarInstruction';
+                    address: 'Sysvar1nstructions1111111111111111111111111';
                 },
                 {
                     name: 'metadataProgram';
+                    address: 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s';
                 },
                 {
                     name: 'rent';
+                    address: 'SysvarRent111111111111111111111111111111111';
                 }
             ];
             args: [
@@ -236,9 +379,18 @@ export type IdlJupLend = {
                 {
                     name: 'lendingAdmin';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const';
+                                value: [108, 101, 110, 100, 105, 110, 103, 95, 97, 100, 109, 105, 110];
+                            }
+                        ];
+                    };
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -268,13 +420,54 @@ export type IdlJupLend = {
                 {
                     name: 'depositorTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'lendingAdmin';
@@ -286,6 +479,7 @@ export type IdlJupLend = {
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -309,6 +503,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -318,9 +513,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -329,6 +526,7 @@ export type IdlJupLend = {
                     type: 'u64';
                 }
             ];
+            returns: 'u64';
         },
         {
             name: 'mintWithMaxAssets';
@@ -342,13 +540,54 @@ export type IdlJupLend = {
                 {
                     name: 'depositorTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'lendingAdmin';
@@ -360,6 +599,7 @@ export type IdlJupLend = {
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -383,6 +623,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -392,9 +633,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -407,6 +650,7 @@ export type IdlJupLend = {
                     type: 'u64';
                 }
             ];
+            returns: 'u64';
         },
         {
             name: 'rebalance';
@@ -420,6 +664,26 @@ export type IdlJupLend = {
                 {
                     name: 'depositorTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'lendingAdmin';
@@ -430,10 +694,12 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -458,6 +724,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -467,9 +734,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [];
@@ -486,10 +755,50 @@ export type IdlJupLend = {
                 {
                     name: 'ownerTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'lendingAdmin';
@@ -500,10 +809,12 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -531,6 +842,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -540,9 +852,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -551,6 +865,7 @@ export type IdlJupLend = {
                     type: 'u64';
                 }
             ];
+            returns: 'u64';
         },
         {
             name: 'redeemWithMinAmountOut';
@@ -564,10 +879,50 @@ export type IdlJupLend = {
                 {
                     name: 'ownerTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'lendingAdmin';
@@ -578,10 +933,12 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -609,6 +966,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -618,9 +976,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -651,6 +1011,7 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'fTokenMint';
+                    relations: ['lending'];
                 },
                 {
                     name: 'newRewardsRateModel';
@@ -722,9 +1083,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'supplyTokenReservesLiquidity'];
                 },
                 {
                     name: 'fTokenMint';
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -767,10 +1130,50 @@ export type IdlJupLend = {
                 {
                     name: 'ownerTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'lendingAdmin';
@@ -781,10 +1184,12 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -812,6 +1217,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -821,9 +1227,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -832,6 +1240,7 @@ export type IdlJupLend = {
                     type: 'u64';
                 }
             ];
+            returns: 'u64';
         },
         {
             name: 'withdrawWithMaxSharesBurn';
@@ -845,10 +1254,50 @@ export type IdlJupLend = {
                 {
                     name: 'ownerTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'fTokenMint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'recipientTokenAccount';
                     writable: true;
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account';
+                                path: 'signer';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'tokenProgram';
+                            },
+                            {
+                                kind: 'account';
+                                path: 'mint';
+                            }
+                        ];
+                        program: {
+                            kind: 'const';
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89];
+                        };
+                    };
                 },
                 {
                     name: 'lendingAdmin';
@@ -859,10 +1308,12 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'mint';
+                    relations: ['lending', 'rewardsRateModel'];
                 },
                 {
                     name: 'fTokenMint';
                     writable: true;
+                    relations: ['lending'];
                 },
                 {
                     name: 'supplyTokenReservesLiquidity';
@@ -890,6 +1341,7 @@ export type IdlJupLend = {
                 {
                     name: 'liquidityProgram';
                     writable: true;
+                    relations: ['lendingAdmin'];
                 },
                 {
                     name: 'rewardsRateModel';
@@ -899,9 +1351,11 @@ export type IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram';
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
                 },
                 {
                     name: 'systemProgram';
+                    address: '11111111111111111111111111111111';
                 }
             ];
             args: [
@@ -914,6 +1368,29 @@ export type IdlJupLend = {
                     type: 'u64';
                 }
             ];
+            returns: 'u64';
+        }
+    ];
+    accounts: [
+        {
+            name: 'lending';
+            discriminator: [135, 199, 82, 16, 249, 131, 182, 241];
+        },
+        {
+            name: 'lendingAdmin';
+            discriminator: [42, 8, 33, 220, 163, 40, 210, 5];
+        },
+        {
+            name: 'lendingRewardsRateModel';
+            discriminator: [166, 72, 71, 131, 172, 74, 166, 181];
+        },
+        {
+            name: 'tokenReserve';
+            discriminator: [21, 18, 59, 135, 120, 20, 31, 12];
+        },
+        {
+            name: 'userSupplyPosition';
+            discriminator: [202, 219, 136, 118, 61, 177, 21, 146];
         }
     ];
     events: [
@@ -950,6 +1427,73 @@ export type IdlJupLend = {
             discriminator: [49, 9, 176, 179, 222, 190, 6, 117];
         }
     ];
+    errors: [
+        {
+            code: 6000;
+            name: 'fTokenDepositInsignificant';
+            msg: 'fTokenDepositInsignificant';
+        },
+        {
+            code: 6001;
+            name: 'fTokenMinAmountOut';
+            msg: 'fTokenMinAmountOut';
+        },
+        {
+            code: 6002;
+            name: 'fTokenMaxAmount';
+            msg: 'fTokenMaxAmount';
+        },
+        {
+            code: 6003;
+            name: 'fTokenInvalidParams';
+            msg: 'fTokenInvalidParams';
+        },
+        {
+            code: 6004;
+            name: 'fTokenRewardsRateModelAlreadySet';
+            msg: 'fTokenRewardsRateModelAlreadySet';
+        },
+        {
+            code: 6005;
+            name: 'fTokenMaxAuthCountReached';
+            msg: 'fTokenMaxAuthCount';
+        },
+        {
+            code: 6006;
+            name: 'fTokenLiquidityExchangePriceUnexpected';
+            msg: 'fTokenLiquidityExchangePriceUnexpected';
+        },
+        {
+            code: 6007;
+            name: 'fTokenCpiToLiquidityFailed';
+            msg: 'fTokenCpiToLiquidityFailed';
+        },
+        {
+            code: 6008;
+            name: 'fTokenOnlyAuth';
+            msg: 'fTokenOnlyAuth';
+        },
+        {
+            code: 6009;
+            name: 'fTokenOnlyAuthority';
+            msg: 'fTokenOnlyAuthority';
+        },
+        {
+            code: 6010;
+            name: 'fTokenOnlyRebalancer';
+            msg: 'fTokenOnlyRebalancer';
+        },
+        {
+            code: 6011;
+            name: 'fTokenUserSupplyPositionRequired';
+            msg: 'fTokenUserSupplyPositionRequired';
+        },
+        {
+            code: 6012;
+            name: 'fTokenLiquidityProgramMismatch';
+            msg: 'fTokenLiquidityProgramMismatch';
+        }
+    ];
     types: [
         {
             name: 'addressBool';
@@ -963,6 +1507,144 @@ export type IdlJupLend = {
                     {
                         name: 'value';
                         type: 'bool';
+                    }
+                ];
+            };
+        },
+        {
+            name: 'lending';
+            type: {
+                kind: 'struct';
+                fields: [
+                    {
+                        name: 'mint';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'fTokenMint';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'lendingId';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'decimals';
+                        docs: ['@dev number of decimals for the fToken, same as ASSET'];
+                        type: 'u8';
+                    },
+                    {
+                        name: 'rewardsRateModel';
+                        docs: ['@dev To read PDA of rewards rate model to get_rate instruction'];
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'liquidityExchangePrice';
+                        docs: ['@dev exchange price for the underlying asset in the liquidity protocol (without rewards)'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'tokenExchangePrice';
+                        docs: ['@dev exchange price between fToken and the underlying asset (with rewards)'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'lastUpdateTimestamp';
+                        docs: ['@dev timestamp when exchange prices were updated the last time'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'tokenReservesLiquidity';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'supplyPositionOnLiquidity';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'bump';
+                        type: 'u8';
+                    }
+                ];
+            };
+        },
+        {
+            name: 'lendingAdmin';
+            type: {
+                kind: 'struct';
+                fields: [
+                    {
+                        name: 'authority';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'liquidityProgram';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'rebalancer';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'nextLendingId';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'auths';
+                        type: {
+                            vec: 'pubkey';
+                        };
+                    },
+                    {
+                        name: 'bump';
+                        type: 'u8';
+                    }
+                ];
+            };
+        },
+        {
+            name: 'lendingRewardsRateModel';
+            type: {
+                kind: 'struct';
+                fields: [
+                    {
+                        name: 'mint';
+                        docs: ['@dev mint address'];
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'startTvl';
+                        docs: ['@dev tvl below which rewards rate is 0. If current TVL is below this value, triggering `update_rate()` on the fToken', 'might bring the total TVL above this cut-off.'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'duration';
+                        docs: ['@dev for how long current rewards should run'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'startTime';
+                        docs: ['@dev when current rewards got started'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'yearlyReward';
+                        docs: ['@dev current annualized reward based on input params (duration, rewardAmount)'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'nextDuration';
+                        docs: ['@dev Duration for the next rewards phase'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'nextRewardAmount';
+                        docs: ['@dev Amount of rewards for the next phase'];
+                        type: 'u64';
+                    },
+                    {
+                        name: 'bump';
+                        type: 'u8';
                     }
                 ];
             };
@@ -1100,10 +1782,145 @@ export type IdlJupLend = {
                     }
                 ];
             };
+        },
+        {
+            name: 'tokenReserve';
+            docs: ['Token configuration and exchange prices'];
+            serialization: 'bytemuck';
+            repr: {
+                kind: 'c';
+                packed: true;
+            };
+            type: {
+                kind: 'struct';
+                fields: [
+                    {
+                        name: 'mint';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'vault';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'borrowRate';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'feeOnInterest';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'lastUtilization';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'lastUpdateTimestamp';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'supplyExchangePrice';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'borrowExchangePrice';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'maxUtilization';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'totalSupplyWithInterest';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'totalSupplyInterestFree';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'totalBorrowWithInterest';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'totalBorrowInterestFree';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'totalClaimAmount';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'interactingProtocol';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'interactingTimestamp';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'interactingBalance';
+                        type: 'u64';
+                    }
+                ];
+            };
+        },
+        {
+            name: 'userSupplyPosition';
+            docs: ['User supply position'];
+            serialization: 'bytemuck';
+            repr: {
+                kind: 'c';
+                packed: true;
+            };
+            type: {
+                kind: 'struct';
+                fields: [
+                    {
+                        name: 'protocol';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'mint';
+                        type: 'pubkey';
+                    },
+                    {
+                        name: 'withInterest';
+                        type: 'u8';
+                    },
+                    {
+                        name: 'amount';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'withdrawalLimit';
+                        type: 'u128';
+                    },
+                    {
+                        name: 'lastUpdate';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'expandPct';
+                        type: 'u16';
+                    },
+                    {
+                        name: 'expandDuration';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'baseWithdrawalLimit';
+                        type: 'u64';
+                    },
+                    {
+                        name: 'status';
+                        type: 'u8';
+                    }
+                ];
+            };
         }
     ];
 };
-
 export const idlJupLend: IdlJupLend = {
     address: '7tjE28izRUjzmxC1QNXnNwcc4N82CNYCexf3k8mw67s3',
     metadata: {
@@ -1112,7 +1929,6 @@ export const idlJupLend: IdlJupLend = {
         spec: '0.1.0',
         description: 'Created with Anchor',
     },
-    docs: ['Anchor CPI crate generated from lending v0.1.0 using [anchor-gen](https://crates.io/crates/anchor-gen) v0.4.1.'],
     instructions: [
         {
             name: 'deposit',
@@ -1126,13 +1942,54 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'depositorTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'lendingAdmin',
@@ -1144,6 +2001,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1167,6 +2025,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1176,9 +2035,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1187,6 +2048,7 @@ export const idlJupLend: IdlJupLend = {
                     type: 'u64',
                 },
             ],
+            returns: 'u64',
         },
         {
             name: 'depositWithMinAmountOut',
@@ -1200,13 +2062,54 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'depositorTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'lendingAdmin',
@@ -1218,6 +2121,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1241,6 +2145,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1250,9 +2155,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1281,18 +2188,67 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['tokenReservesLiquidity'],
                 },
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [102, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116],
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                    },
                 },
                 {
                     name: 'metadataAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [109, 101, 116, 97, 100, 97, 116, 97],
+                            },
+                            {
+                                kind: 'const',
+                                value: [11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70],
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [11, 112, 101, 177, 227, 209, 124, 69, 56, 157, 82, 127, 107, 4, 195, 205, 88, 184, 108, 115, 26, 160, 253, 181, 73, 182, 209, 188, 3, 248, 41, 70],
+                        },
+                    },
                 },
                 {
                     name: 'lending',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [108, 101, 110, 100, 105, 110, 103],
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                    },
                 },
                 {
                     name: 'tokenReservesLiquidity',
@@ -1302,15 +2258,19 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
                 {
-                    name: 'sysvarInstruction',
+                    name: 'SysvarInstruction',
+                    address: 'Sysvar1nstructions1111111111111111111111111',
                 },
                 {
                     name: 'metadataProgram',
+                    address: 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s',
                 },
                 {
                     name: 'rent',
+                    address: 'SysvarRent111111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1336,9 +2296,18 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'lendingAdmin',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'const',
+                                value: [108, 101, 110, 100, 105, 110, 103, 95, 97, 100, 109, 105, 110],
+                            },
+                        ],
+                    },
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1368,13 +2337,54 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'depositorTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'lendingAdmin',
@@ -1386,6 +2396,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1409,6 +2420,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1418,9 +2430,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1429,6 +2443,7 @@ export const idlJupLend: IdlJupLend = {
                     type: 'u64',
                 },
             ],
+            returns: 'u64',
         },
         {
             name: 'mintWithMaxAssets',
@@ -1442,13 +2457,54 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'depositorTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'lendingAdmin',
@@ -1460,6 +2516,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1483,6 +2540,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1492,9 +2550,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1507,6 +2567,7 @@ export const idlJupLend: IdlJupLend = {
                     type: 'u64',
                 },
             ],
+            returns: 'u64',
         },
         {
             name: 'rebalance',
@@ -1520,6 +2581,26 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'depositorTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'lendingAdmin',
@@ -1530,10 +2611,12 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1558,6 +2641,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1567,9 +2651,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [],
@@ -1586,10 +2672,50 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'ownerTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'lendingAdmin',
@@ -1600,10 +2726,12 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1631,6 +2759,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1640,9 +2769,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1651,6 +2782,7 @@ export const idlJupLend: IdlJupLend = {
                     type: 'u64',
                 },
             ],
+            returns: 'u64',
         },
         {
             name: 'redeemWithMinAmountOut',
@@ -1664,10 +2796,50 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'ownerTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'lendingAdmin',
@@ -1678,10 +2850,12 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1709,6 +2883,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1718,9 +2893,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1751,6 +2928,7 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'fTokenMint',
+                    relations: ['lending'],
                 },
                 {
                     name: 'newRewardsRateModel',
@@ -1822,9 +3000,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'supplyTokenReservesLiquidity'],
                 },
                 {
                     name: 'fTokenMint',
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1867,10 +3047,50 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'ownerTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'lendingAdmin',
@@ -1881,10 +3101,12 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1912,6 +3134,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1921,9 +3144,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -1932,6 +3157,7 @@ export const idlJupLend: IdlJupLend = {
                     type: 'u64',
                 },
             ],
+            returns: 'u64',
         },
         {
             name: 'withdrawWithMaxSharesBurn',
@@ -1945,10 +3171,50 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'ownerTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'fTokenMint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'recipientTokenAccount',
                     writable: true,
+                    pda: {
+                        seeds: [
+                            {
+                                kind: 'account',
+                                path: 'signer',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'tokenProgram',
+                            },
+                            {
+                                kind: 'account',
+                                path: 'mint',
+                            },
+                        ],
+                        program: {
+                            kind: 'const',
+                            value: [140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142, 13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216, 219, 233, 248, 89],
+                        },
+                    },
                 },
                 {
                     name: 'lendingAdmin',
@@ -1959,10 +3225,12 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'mint',
+                    relations: ['lending', 'rewardsRateModel'],
                 },
                 {
                     name: 'fTokenMint',
                     writable: true,
+                    relations: ['lending'],
                 },
                 {
                     name: 'supplyTokenReservesLiquidity',
@@ -1990,6 +3258,7 @@ export const idlJupLend: IdlJupLend = {
                 {
                     name: 'liquidityProgram',
                     writable: true,
+                    relations: ['lendingAdmin'],
                 },
                 {
                     name: 'rewardsRateModel',
@@ -1999,9 +3268,11 @@ export const idlJupLend: IdlJupLend = {
                 },
                 {
                     name: 'associatedTokenProgram',
+                    address: 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 },
                 {
                     name: 'systemProgram',
+                    address: '11111111111111111111111111111111',
                 },
             ],
             args: [
@@ -2014,6 +3285,29 @@ export const idlJupLend: IdlJupLend = {
                     type: 'u64',
                 },
             ],
+            returns: 'u64',
+        },
+    ],
+    accounts: [
+        {
+            name: 'lending',
+            discriminator: [135, 199, 82, 16, 249, 131, 182, 241],
+        },
+        {
+            name: 'lendingAdmin',
+            discriminator: [42, 8, 33, 220, 163, 40, 210, 5],
+        },
+        {
+            name: 'lendingRewardsRateModel',
+            discriminator: [166, 72, 71, 131, 172, 74, 166, 181],
+        },
+        {
+            name: 'tokenReserve',
+            discriminator: [21, 18, 59, 135, 120, 20, 31, 12],
+        },
+        {
+            name: 'userSupplyPosition',
+            discriminator: [202, 219, 136, 118, 61, 177, 21, 146],
         },
     ],
     events: [
@@ -2050,6 +3344,73 @@ export const idlJupLend: IdlJupLend = {
             discriminator: [49, 9, 176, 179, 222, 190, 6, 117],
         },
     ],
+    errors: [
+        {
+            code: 6000,
+            name: 'fTokenDepositInsignificant',
+            msg: 'fTokenDepositInsignificant',
+        },
+        {
+            code: 6001,
+            name: 'fTokenMinAmountOut',
+            msg: 'fTokenMinAmountOut',
+        },
+        {
+            code: 6002,
+            name: 'fTokenMaxAmount',
+            msg: 'fTokenMaxAmount',
+        },
+        {
+            code: 6003,
+            name: 'fTokenInvalidParams',
+            msg: 'fTokenInvalidParams',
+        },
+        {
+            code: 6004,
+            name: 'fTokenRewardsRateModelAlreadySet',
+            msg: 'fTokenRewardsRateModelAlreadySet',
+        },
+        {
+            code: 6005,
+            name: 'fTokenMaxAuthCountReached',
+            msg: 'fTokenMaxAuthCount',
+        },
+        {
+            code: 6006,
+            name: 'fTokenLiquidityExchangePriceUnexpected',
+            msg: 'fTokenLiquidityExchangePriceUnexpected',
+        },
+        {
+            code: 6007,
+            name: 'fTokenCpiToLiquidityFailed',
+            msg: 'fTokenCpiToLiquidityFailed',
+        },
+        {
+            code: 6008,
+            name: 'fTokenOnlyAuth',
+            msg: 'fTokenOnlyAuth',
+        },
+        {
+            code: 6009,
+            name: 'fTokenOnlyAuthority',
+            msg: 'fTokenOnlyAuthority',
+        },
+        {
+            code: 6010,
+            name: 'fTokenOnlyRebalancer',
+            msg: 'fTokenOnlyRebalancer',
+        },
+        {
+            code: 6011,
+            name: 'fTokenUserSupplyPositionRequired',
+            msg: 'fTokenUserSupplyPositionRequired',
+        },
+        {
+            code: 6012,
+            name: 'fTokenLiquidityProgramMismatch',
+            msg: 'fTokenLiquidityProgramMismatch',
+        },
+    ],
     types: [
         {
             name: 'addressBool',
@@ -2063,6 +3424,144 @@ export const idlJupLend: IdlJupLend = {
                     {
                         name: 'value',
                         type: 'bool',
+                    },
+                ],
+            },
+        },
+        {
+            name: 'lending',
+            type: {
+                kind: 'struct',
+                fields: [
+                    {
+                        name: 'mint',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'fTokenMint',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'lendingId',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'decimals',
+                        docs: ['@dev number of decimals for the fToken, same as ASSET'],
+                        type: 'u8',
+                    },
+                    {
+                        name: 'rewardsRateModel',
+                        docs: ['@dev To read PDA of rewards rate model to get_rate instruction'],
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'liquidityExchangePrice',
+                        docs: ['@dev exchange price for the underlying asset in the liquidity protocol (without rewards)'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'tokenExchangePrice',
+                        docs: ['@dev exchange price between fToken and the underlying asset (with rewards)'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'lastUpdateTimestamp',
+                        docs: ['@dev timestamp when exchange prices were updated the last time'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'tokenReservesLiquidity',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'supplyPositionOnLiquidity',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'bump',
+                        type: 'u8',
+                    },
+                ],
+            },
+        },
+        {
+            name: 'lendingAdmin',
+            type: {
+                kind: 'struct',
+                fields: [
+                    {
+                        name: 'authority',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'liquidityProgram',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'rebalancer',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'nextLendingId',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'auths',
+                        type: {
+                            vec: 'pubkey',
+                        },
+                    },
+                    {
+                        name: 'bump',
+                        type: 'u8',
+                    },
+                ],
+            },
+        },
+        {
+            name: 'lendingRewardsRateModel',
+            type: {
+                kind: 'struct',
+                fields: [
+                    {
+                        name: 'mint',
+                        docs: ['@dev mint address'],
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'startTvl',
+                        docs: ['@dev tvl below which rewards rate is 0. If current TVL is below this value, triggering `update_rate()` on the fToken', 'might bring the total TVL above this cut-off.'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'duration',
+                        docs: ['@dev for how long current rewards should run'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'startTime',
+                        docs: ['@dev when current rewards got started'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'yearlyReward',
+                        docs: ['@dev current annualized reward based on input params (duration, rewardAmount)'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'nextDuration',
+                        docs: ['@dev Duration for the next rewards phase'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'nextRewardAmount',
+                        docs: ['@dev Amount of rewards for the next phase'],
+                        type: 'u64',
+                    },
+                    {
+                        name: 'bump',
+                        type: 'u8',
                     },
                 ],
             },
@@ -2197,6 +3696,142 @@ export const idlJupLend: IdlJupLend = {
                     {
                         name: 'sharesBurned',
                         type: 'u64',
+                    },
+                ],
+            },
+        },
+        {
+            name: 'tokenReserve',
+            docs: ['Token configuration and exchange prices'],
+            serialization: 'bytemuck',
+            repr: {
+                kind: 'c',
+                packed: true,
+            },
+            type: {
+                kind: 'struct',
+                fields: [
+                    {
+                        name: 'mint',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'vault',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'borrowRate',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'feeOnInterest',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'lastUtilization',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'lastUpdateTimestamp',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'supplyExchangePrice',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'borrowExchangePrice',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'maxUtilization',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'totalSupplyWithInterest',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'totalSupplyInterestFree',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'totalBorrowWithInterest',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'totalBorrowInterestFree',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'totalClaimAmount',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'interactingProtocol',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'interactingTimestamp',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'interactingBalance',
+                        type: 'u64',
+                    },
+                ],
+            },
+        },
+        {
+            name: 'userSupplyPosition',
+            docs: ['User supply position'],
+            serialization: 'bytemuck',
+            repr: {
+                kind: 'c',
+                packed: true,
+            },
+            type: {
+                kind: 'struct',
+                fields: [
+                    {
+                        name: 'protocol',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'mint',
+                        type: 'pubkey',
+                    },
+                    {
+                        name: 'withInterest',
+                        type: 'u8',
+                    },
+                    {
+                        name: 'amount',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'withdrawalLimit',
+                        type: 'u128',
+                    },
+                    {
+                        name: 'lastUpdate',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'expandPct',
+                        type: 'u16',
+                    },
+                    {
+                        name: 'expandDuration',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'baseWithdrawalLimit',
+                        type: 'u64',
+                    },
+                    {
+                        name: 'status',
+                        type: 'u8',
                     },
                 ],
             },

@@ -1,11 +1,16 @@
+'use client';
 import { CryptoIcon } from 'crypto-icons/CryptoIcon';
 import React from 'react';
 import { Badge } from 'shadcn/badge';
 import { TypePool } from 'src/app/pools/data';
 import CardCustom from 'src/components/card-custom/CardCustom';
 import { formatNumber } from 'src/utils/format';
+import usePoolOnChainInfo from '../hooks/usePoolInfo';
+import { Skeleton } from 'shadcn/skeleton';
 
 export default function CardPoolInfo({ dataPool }: { dataPool: TypePool }) {
+    const onchainInfoPool = usePoolOnChainInfo({ poolId: dataPool.id });
+
     return (
         <CardCustom>
             <div className="flex place-items-center justify-between">
@@ -22,22 +27,30 @@ export default function CardPoolInfo({ dataPool }: { dataPool: TypePool }) {
                 <div>
                     <p className="muted">Your Balance</p>
                     <div className="flex place-items-center gap-1 justify-center">
-                        <p className="lead font-bold ">{formatNumber(213.474)}</p>
-                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={14} />
+                        {onchainInfoPool.userDeposited.isLoading ? (
+                            <Skeleton className="h-6 w-30" />
+                        ) : (
+                            <p className="lead font-bold ">{formatNumber(onchainInfoPool.userDeposited.data, { fractionDigits: 6 })}</p>
+                        )}
+                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={18} />
                     </div>
                 </div>
                 <div>
                     <p className="muted">Total Profit</p>
                     <div className="flex place-items-center gap-1 justify-center">
                         <p className="lead font-bold ">{formatNumber(223.474)}</p>
-                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={14} />
+                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={18} />
                     </div>
                 </div>
                 <div>
                     <p className="muted">TVl Pool</p>
                     <div className="flex place-items-center gap-1 justify-center">
-                        <p className="lead font-bold ">{formatNumber(223.474)}</p>
-                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={14} />
+                        {onchainInfoPool.totalSupply.isLoading ? (
+                            <Skeleton className="h-6 w-30" />
+                        ) : (
+                            <p className="lead font-bold ">{formatNumber(onchainInfoPool.totalSupply.data, { fractionDigits: 6 })}</p>
+                        )}
+                        <CryptoIcon name={dataPool.tokenDeposit.symbol} size={18} />
                     </div>
                 </div>
                 <div>
