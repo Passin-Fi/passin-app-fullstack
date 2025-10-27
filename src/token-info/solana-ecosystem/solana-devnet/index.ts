@@ -9,3 +9,12 @@ export const usdc01DevSolanaDevnet = new SolanaDevnetTokenInfo({
     isNative: false,
     isToken2022: false,
 });
+
+export const fUSDCDevSolanaDevnet = new SolanaDevnetTokenInfo({
+    address: '2Wx1tTo8PkTP95NyKoFNPTtcLnYaSowDkExwbHDKAZQu',
+    decimals: 6,
+    symbol: TokenSymbol.USDC,
+    prettyName: 'Jupiter Lend USDC',
+    isNative: false,
+    isToken2022: false,
+});
