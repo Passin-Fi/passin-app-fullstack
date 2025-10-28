@@ -7,7 +7,7 @@ export default function Assets() {
     return (
         <div>
             <EstimatedBalance />
-            <YourCryptoInPools />
+            {/* <YourCryptoInPools /> */}
             <YourCryptoInWallet />
         </div>
     );
