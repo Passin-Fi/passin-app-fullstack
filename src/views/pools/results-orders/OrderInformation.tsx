@@ -45,7 +45,12 @@ const stepSubToPool = (poolName: string, txHash?: string) => ({
             Deposit tokens to the pool. Pool: {poolName}
             <br />
             {txHash && (
-                <a className="text-foreground overflow-hidden text-ellipsis whitespace-nowrap" target="_blank" href={`https://solscan.io/tx/${txHash}?cluster=devnet`}>
+                <a
+                    className="text-foreground overflow-hidden text-ellipsis whitespace-nowrap"
+                    target="_blank"
+                    href={`https://solscan.io/tx/${txHash}?cluster=${process.env.NEXT_PUBLIC_CLUSTER}`}
+                    rel="noreferrer"
+                >
                     Tx: {formatAddress(txHash, 15, 6)} <SquareArrowOutUpRight className="inline" size={14} />
                 </a>
             )}

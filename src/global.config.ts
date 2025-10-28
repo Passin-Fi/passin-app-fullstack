@@ -1,5 +1,14 @@
 import { ReactNode } from 'react';
 
+// Augment NodeJS.ProcessEnv to strongly type Next.js environment variables
+declare global {
+    namespace NodeJS {
+        interface ProcessEnv {
+            readonly NEXT_PUBLIC_BASE_URL: string;
+            readonly NEXT_PUBLIC_CLUSTER: 'devnet' | 'mainnet-beta' | 'testnet';
+        }
+    }
+}
 export interface FormatNumberOptions {
     /**
      * Number of digits after the decimal point. Must be in the range 0 - 20, inclusive.
