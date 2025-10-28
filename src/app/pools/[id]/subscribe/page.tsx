@@ -24,15 +24,16 @@ import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 import useFetchOrders from 'src/views/orders/useFetchOrders';
 import { getPaymentStatus } from 'src/services/payment/get-payment-status';
 import { CreateOrderPaymentInput, postCreateOrderPayment } from 'src/services/payment/create-payment-order';
-import BN from 'bn.js';
-import { AnchorProvider, Program, Wallet, Idl } from '@coral-xyz/anchor';
+import { AnchorProvider, Program, Wallet, Idl, BN } from '@coral-xyz/anchor';
 import { publicClientSol } from 'src/constant';
 import { Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction, VersionedTransaction } from '@solana/web3.js';
 import useSmartWalletActive from 'src/hooks/useSmartWalletActive';
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { useAtomValue } from 'jotai';
+import { PasskeyDataReadable } from 'src/types';
+import useWalletDataReadable from 'src/hooks/useWalletDataReadable';
 
-export default function Subcribe() {
+export default function Subscribe() {
     const { id: idPool } = useParams<{ id: string }>();
 
     if (!dataPools[idPool]) {
@@ -49,11 +50,11 @@ export default function Subcribe() {
 function UIPoolIdValid({ idPool }: { idPool: string }) {
     const priceTokenInVND = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'VND');
     const priceTokenInUSD = useTokenPrice(dataPools[idPool].tokenDeposit.symbol, 'USD');
-    const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('VND');
+    const [selectedFiat, setSelectedFiat] = React.useState<'USD' | 'VND'>('USD');
     const [inputValue, setInputValue] = React.useState<{ amountToken: string; amountVND: string; amountUSD: string }>({ amountToken: '0', amountVND: '0', amountUSD: '0' });
     const { passkeyConnected } = usePasskeyConnected();
     const { smartWalletPubkey, wallet } = useWallet();
-    const { refetch } = useFetchOrders(passkeyConnected?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
+    const { refetch } = useFetchOrders(passkeyConnected?.passkeyAddress || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
     const { getSmartWallet } = useSmartWalletActive();
 
     function handleChangeAmountToken(value: string) {
@@ -77,24 +78,23 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
         }
     }
 
-    async function subcribe() {
+    async function subscribe() {
         try {
             if (!smartWalletPubkey && !passkeyConnected) {
                 toast.error('Please login first!');
                 return;
             }
 
-            let passkey: PasskeyData | null = null;
+            let passkey: PasskeyDataReadable | null = null;
             const getSmartWalletInfo = await getSmartWallet();
-            const smartWallet = getSmartWalletInfo?.smartWallet || '';
+            const smartWallet = getSmartWalletInfo?.smartWallet?.toString() || '';
 
             if (smartWallet) {
                 passkey = {
-                    publicKey: wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : '',
+                    passkeyAddress: wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : '',
                     credentialId: wallet ? wallet.credentialId : '',
-                    isCreated: true,
-                    smartWalletAddress: smartWallet.toString(),
-                    smartWalletId: new BN('000000'), // Dummy id, not used
+                    smartWalletAddress: smartWallet,
+                    walletId: new BN(0),
                 };
             } else {
                 passkey = passkeyConnected;
@@ -108,7 +108,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 order_lines: [
                     {
                         key: dataPools[idPool].tokenDeposit.address,
-                        title: `Subcribe in Pool ${dataPools[idPool].name}`,
+                        title: `Subscribe in Pool ${dataPools[idPool].name}`,
                         quantity: parseFloat(inputValue.amountToken),
                         unit_price: parseFloat(priceTokenInUSD.data ? priceTokenInUSD.data.rate.toFixed(4) : '0'),
                         min_receive_quantity: parseFloat((parseFloat(inputValue.amountToken) * (1 - slippage)).toFixed(0)),
@@ -121,9 +121,9 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                 ],
                 shipping: {
                     id: smartWallet,
-                    account_id: passkey!.publicKey,
+                    account_id: passkey!.passkeyAddress,
                     zip: passkey!.credentialId,
-                    phone: passkey!.smartWalletId.toString(),
+                    phone: passkey!.walletId.toString(),
                 },
             } as OrderPaymentInput;
 
@@ -147,8 +147,8 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             refetch();
             window.location.href = data.pay_now_url;
         } catch (error) {
-            console.error('Error subcribe:', error);
-            toast.error('Error subcribe!' + (error instanceof Error ? ` ${error.message}` : ''));
+            console.error('Error subscribe:', error);
+            toast.error('Error subscribe!' + (error instanceof Error ? ` ${error.message}` : ''));
         }
     }
     return (
@@ -156,7 +156,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
             <CardCustom>
                 <h4 className="text-center font-bold">Deposit in Pool {dataPools[idPool].name}</h4>
                 <div className="mt-4">
-                    <p className="muted">Enter amount</p>
+                    <p className="muted">Buy amount</p>
                     <Input
                         placeholder="0"
                         type="number"
@@ -172,7 +172,7 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                     />
                 </div>
                 <div className="mt-4">
-                    <p className="muted">Spend</p>
+                    <p className="muted">Spend amount</p>
                     <Input
                         warpperClassName="!pr-0"
                         placeholder="0"
@@ -204,18 +204,18 @@ function UIPoolIdValid({ idPool }: { idPool: string }) {
                             Cancel
                         </Link>
                     </Button>
-                    {/* <Button className="flex-1" onClick={subcribe}>
-                        Subcribe
+                    {/* <Button className="flex-1" onClick={subscribe}>
+                        Subscribe
                     </Button> */}
-                    <ButtonSubcribe onClick={subcribe} />
+                    <ButtonSubscribe onClick={subscribe} />
                 </div>
             </CardCustom>
-            <TestGetPaymentStatus />
+            {process.env.NODE_ENV === 'development' && <TestGetPaymentStatus />}
         </div>
     );
 }
 
-function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
+function ButtonSubscribe({ onClick }: { onClick: () => Promise<void> }) {
     const [loading, setLoading] = React.useState(false);
 
     async function handleClick() {
@@ -223,7 +223,7 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
         try {
             await onClick();
         } catch (error) {
-            console.error('Error in ButtonSubcribe:', error);
+            console.error('Error in ButtonSubscribe:', error);
         } finally {
             setLoading(false);
         }
@@ -232,10 +232,10 @@ function ButtonSubcribe({ onClick }: { onClick: () => Promise<void> }) {
         <Button className="flex-1" onClick={handleClick} disabled={loading}>
             {loading ? (
                 <>
-                    <LoadingAnimation1 size={22} /> Processing...
+                    <LoadingAnimation1 className="text-foreground" size={22} /> Processing...
                 </>
             ) : (
-                'Subcribe'
+                'Subscribe'
             )}
         </Button>
     );
@@ -261,39 +261,13 @@ const atomlocalPasskey = atomWithStorage(
 );
 
 function TestGetPaymentStatus() {
-    const {
-        smartWalletPubkey,
-        connect,
-        connectPasskey,
-        isConnected,
-        isConnecting,
-        disconnect,
-        syncWalletStatus,
-        isLoading,
-        error,
-        createSmartWallet,
-        getSmartWalletByPasskey,
-        buildSmartWalletTransaction,
-        signAndSendTransaction,
-        isSigning,
-        wallet,
-    } = useWallet();
+    const { smartWalletPubkey, connect, connectPasskey, isConnected, isConnecting, disconnect, isLoading, error, signAndSendTransaction, isSigning, wallet } = useWallet();
     const [paymentId, setPaymentId] = React.useState<string>('');
     const { passkeyConnected } = usePasskeyConnected();
-    const localPasskey = useAtomValue(atomlocalPasskey);
-
-    async function testSyncWalletStatus() {
-        try {
-            const res = await syncWalletStatus();
-            console.log('syncWalletStatus success:', res);
-        } catch (error) {
-            console.error('Error syncWalletStatus:', error);
-        }
-    }
+    const dataWalletReadable = useWalletDataReadable();
 
     function logs() {
-        console.log('Local storage PUBLIC_KEY:', localPasskey);
-        console.log({ passkeyConnected, smartWalletPubkey, isConnected, wallet });
+        console.log(dataWalletReadable);
     }
     async function getStatus() {
         try {
@@ -322,6 +296,38 @@ function TestGetPaymentStatus() {
             console.log('Connect wallet success:', { res, passkey });
         } catch (error) {
             console.error('Error connect wallet:', error);
+        }
+    }
+
+    async function getSmartWalletByPasskey() {
+        try {
+            if (!wallet) {
+                console.error('Please connect passkey wallet first!');
+                return;
+            }
+            const response = await lazorkitProgram.getSmartWalletByPasskey(wallet!.passkeyPubkey);
+            console.log('getSmartWalletByPasskey response:', {
+                smartwallet: response.smartWallet?.toString(),
+                walletDevice: response.walletDevice?.toString(),
+            });
+        } catch (error) {
+            console.error('Error getSmartWalletByPasskey:', error);
+        }
+    }
+
+    async function getSmartWalletByWalletId() {
+        try {
+            if (!passkeyConnected) {
+                console.error('Please connect passkey wallet first!');
+                return;
+            }
+            const response = await lazorkitProgram.getSmartWalletPubkey(new BN(passkeyConnected?.walletId));
+            console.log('smart wallet PDA from wallet ID response:', {
+                smartwallet: response?.toString(),
+                walletId: passkeyConnected?.walletId,
+            });
+        } catch (error) {
+            console.error('Error getSmartWalletByPasskey:', error);
         }
     }
 
@@ -384,14 +390,6 @@ function TestGetPaymentStatus() {
             console.error('Error create payment test:', error);
         }
     }
-    async function checkSmartWalletIsCreated() {
-        try {
-            const response = await getSmartWalletByPasskey(wallet?.passkeyPubkey || []);
-            console.log('getSmartWalletByPasskey response data:', { smartwallet: response.smartWallet?.toString(), walletDevice: response.walletDevice?.toString() });
-        } catch (error) {
-            console.error('Error checkSmartWalletIsCreated:', error);
-        }
-    }
 
     return (
         <div className="mt-6 border border-red-700">
@@ -406,11 +404,6 @@ function TestGetPaymentStatus() {
             <p>Check isConnected {isConnected ? 'true' : 'false'}</p>
 
             <div className="mt-2">
-                <Button variant={'secondary'} onClick={testSyncWalletStatus}>
-                    syncWalletStatus()
-                </Button>
-            </div>
-            <div className="mt-2">
                 <Button variant={'secondary'} onClick={logs}>
                     Logs wallet variable
                 </Button>
@@ -423,17 +416,25 @@ function TestGetPaymentStatus() {
             </div>
 
             <div className="mt-2">
+                <Button variant={'outline'} onClick={getSmartWalletByPasskey}>
+                    getSmartWalletBy - Passkey()
+                </Button>
+            </div>
+
+            <div className="mt-2">
+                <Button variant={'outline'} onClick={getSmartWalletByWalletId}>
+                    getSmartWalletBy - WalletId()
+                </Button>
+            </div>
+
+            <div className="mt-2">
                 <p>Smart wallet: {smartWalletPubkey?.toString() || 'null'}</p>
-                <p>Passkey connected: {passkeyConnected?.publicKey || 'null'}</p>
+                <p>Passkey connected: {passkeyConnected?.passkeyAddress || 'null'}</p>
                 <Button onClick={testConnect}>connect() - full flow smartwallet</Button>
             </div>
 
             <div className="mt-2">
                 <Button onClick={testSignAndSend}>{isSigning ? 'Signing.....' : 'Test sign and send ix'}</Button>
-            </div>
-
-            <div className="mt-2">
-                <Button onClick={checkSmartWalletIsCreated}>Check smart wallet is created</Button>
             </div>
 
             <div className="mt-2">

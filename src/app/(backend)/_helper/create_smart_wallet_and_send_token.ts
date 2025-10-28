@@ -1,12 +1,12 @@
-import { PasskeyData } from '@lazorkit/wallet';
 import { convertBase64ToArrayNumber, sleep } from 'src/utils';
 import { BackendSolanaClient, connection, gasPriceInstruction, lazorkitProgram } from './const';
 import { Keypair, LAMPORTS_PER_SOL, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { BN } from '@coral-xyz/anchor';
+import { PasskeyDataReadable } from 'src/types';
 
 export async function createSmartWalletAndSendToken(
-    passKeys: PasskeyData,
+    passKeys: PasskeyDataReadable,
     tokenMint: PublicKey,
     amount: number,
     smartWalletOfPasskeys?: string
@@ -22,12 +22,12 @@ export async function createSmartWalletAndSendToken(
 
         // const smartWalletIdBn = lazorkitProgram.generateWalletId();
         // const smartWallet = lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
-        const smartWalletIdBn: BN = new BN(passKeys.smartWalletId);
+        const smartWalletIdBn: BN = new BN(passKeys.walletId);
         const smartWallet = smartWalletOfPasskeys ? new PublicKey(smartWalletOfPasskeys) : lazorkitProgram.getSmartWalletPubkey(smartWalletIdBn);
 
         if (!smartWalletOfPasskeys) {
             // Todo: create smart wallet only when not exist
-            const publicKeyBase64 = passKeys.publicKey;
+            const publicKeyBase64 = passKeys.passkeyAddress;
             const passkeyPubkey = convertBase64ToArrayNumber(publicKeyBase64);
             const walletDevice = lazorkitProgram.getWalletDevicePubkey(smartWallet, passkeyPubkey);
             const credentialId = Buffer.from(passKeys.credentialId);
@@ -37,7 +37,7 @@ export async function createSmartWalletAndSendToken(
                 credentialId,
                 policyData: policyInstruction.data,
                 walletId: smartWalletIdBn,
-                amount: new BN(0.00342432 * LAMPORTS_PER_SOL),
+                amount: new BN((0.00342432 + 0.00503928) * LAMPORTS_PER_SOL),
                 referralAddress: null,
                 vaultIndex: null,
             };

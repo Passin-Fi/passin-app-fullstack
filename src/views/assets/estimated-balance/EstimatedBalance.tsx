@@ -45,9 +45,6 @@ export default function EstimatedBalance() {
                     Withdraw
                 </Button>
                 <Button className="flex-1">Deposit</Button>
-                <Button variant={'outline'} className="flex-1">
-                    Cash In
-                </Button>
             </div>
         </div>
     );

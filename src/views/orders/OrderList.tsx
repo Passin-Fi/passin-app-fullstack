@@ -11,7 +11,7 @@ import LoadingAnimation1 from 'src/components/icons/LoadingAnimation1';
 export default function OrderList() {
     const { wallet } = useWallet();
     const { passkeyConnected } = usePasskeyConnected();
-    const { data, isLoading } = useFetchOrders(passkeyConnected?.publicKey || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
+    const { data, isLoading } = useFetchOrders(passkeyConnected?.passkeyAddress || (wallet ? convertArrayNumberToBase64(wallet.passkeyPubkey) : ''));
 
     return (
         <div className="mt-6">

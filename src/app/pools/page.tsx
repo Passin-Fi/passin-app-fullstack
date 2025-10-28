@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { dataPools } from './data';
 import CardPoolInfoOverview from 'src/views/pools/list-pool/CardPoolInfoOverview';

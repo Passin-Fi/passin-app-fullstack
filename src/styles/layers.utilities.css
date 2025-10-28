@@ -4,7 +4,7 @@
     /* Add tiny utilities, e.g., .content-auto, .mask-gradient */
     .container {
         @apply max-w-[1280px] px-4 mx-auto block w-full;
-        @apply tablet:!px-3;
-        @apply mobile:!px-2;
+        @apply tablet:!px-4.5;
+        @apply mobile:!px-3;
     }
 }

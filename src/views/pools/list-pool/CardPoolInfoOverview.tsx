@@ -1,3 +1,4 @@
+'use client';
 import { CryptoIcon } from 'crypto-icons/CryptoIcon';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -7,8 +8,11 @@ import { Button } from 'shadcn/button';
 import { TypePool } from 'src/app/pools/data';
 import CardCustom from 'src/components/card-custom/CardCustom';
 import { formatNumber } from 'src/utils/format';
+import usePoolOnChainInfo from '../hooks/usePoolInfo';
 
 export default function CardPoolInfoOverview({ dataPool }: { dataPool: TypePool }) {
+    const onchainInfoPool = usePoolOnChainInfo({ poolId: dataPool.id });
+
     return (
         <CardCustom className="not-desktop:col-span-2 desktop:col-span-1">
             <div className="flex gap-2 justify-between">
@@ -26,8 +30,8 @@ export default function CardPoolInfoOverview({ dataPool }: { dataPool: TypePool 
                 </div>
 
                 <Button className="w-[93px] h-[32px]">
-                    <Link className="w-full" href={`/pools/${dataPool.id}/subcribe`}>
-                        Subcribe
+                    <Link className="w-full" href={`/pools/${dataPool.id}/subscribe`}>
+                        Subscribe
                     </Link>
                 </Button>
             </div>
@@ -38,12 +42,12 @@ export default function CardPoolInfoOverview({ dataPool }: { dataPool: TypePool 
                 </div>
                 <div>
                     <p className="muted">TVL Pool</p>
-                    <p className="lead font-bold text-center">{formatNumber(213.474)}</p>
+                    <p className="lead font-bold text-center">{formatNumber(onchainInfoPool.userDeposited.data, { fractionDigits: 6 })}</p>
                 </div>
 
                 <div>
                     <p className="muted">Your Balance</p>
-                    <p className="lead font-bold text-center">{formatNumber(1.11)}</p>
+                    <p className="lead font-bold text-center">{formatNumber(onchainInfoPool.userDeposited.data, { fractionDigits: 6 })}</p>
                 </div>
                 <div>
                     <p className="muted text-foreground">APY</p>

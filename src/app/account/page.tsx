@@ -13,6 +13,7 @@ import { Sun } from 'lucide-react';
 import { useWallet } from '@lazorkit/wallet';
 import { usePasskeyConnected } from 'src/jotai/connect-wallet/hooks';
 import { copyToClipboard } from 'src/utils';
+import { formatAddress } from 'src/utils/format';
 
 export default function Account() {
     const { setTheme, theme } = useTheme();
@@ -21,7 +22,7 @@ export default function Account() {
     return (
         <div>
             <div className="flex place-items-center justify-between">
-                <div className="flex place-items-center gap-2">
+                <div className="flex place-items-center gap-2 max-w-full">
                     <CryptoIcon name={WalletName.LazorKit} className="rounded-full" size={40} />
                     <div>
                         <p className="text-sm leading-4.5">{WalletName.LazorKit}</p>
@@ -31,11 +32,15 @@ export default function Account() {
                                 if (smartWalletPubkey) {
                                     copyToClipboard(smartWalletPubkey.toString());
                                 } else if (passkeyConnected) {
-                                    copyToClipboard(passkeyConnected.publicKey);
+                                    copyToClipboard(passkeyConnected.passkeyAddress);
                                 }
                             }}
                         >
-                            {smartWalletPubkey ? smartWalletPubkey.toString() : passkeyConnected ? passkeyConnected.publicKey.toString() : 'Sign in with passkeys'}
+                            {smartWalletPubkey
+                                ? formatAddress(smartWalletPubkey.toString(), 10, 7)
+                                : passkeyConnected
+                                ? formatAddress(passkeyConnected.passkeyAddress.toString())
+                                : 'Sign in with passkeys'}
                         </p>
                     </div>
                 </div>
